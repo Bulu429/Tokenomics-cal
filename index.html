@@ -981,18 +981,23 @@
           <option value="Llama 3.1 70B">Llama 3.1 70B (Dense)</option>
         </optgroup>
         <optgroup label="Alibaba">
+          <option value="Qwen3.5 397B A17B">Qwen3.5 397B A17B (MoE)</option>
           <option value="Qwen3-235B">Qwen3-235B (MoE)</option>
           <option value="Qwen2.5 72B">Qwen2.5 72B (Dense)</option>
         </optgroup>
         <optgroup label="Zhipu AI">
+          <option value="GLM-4.7">GLM-4.7</option>
           <option value="GLM-5">GLM-5 (744B MoE)</option>
           <option value="GLM-5.1">GLM-5.1 (744B MoE)</option>
         </optgroup>
         <optgroup label="MiniMax">
+          <option value="MiniMax V2 Flash">MiniMax V2 Flash</option>
+          <option value="MiniMax M2.1">MiniMax M2.1</option>
           <option value="MiniMax M2.5">MiniMax M2.5 (230B MoE)</option>
           <option value="MiniMax M2.7">MiniMax M2.7</option>
         </optgroup>
         <optgroup label="Moonshot AI">
+          <option value="Kimi K2 Thinking">Kimi K2 Thinking</option>
           <option value="Kimi K2.5">Kimi K2.5 (~1T MoE)</option>
         </optgroup>
         <optgroup label="开源AI">
@@ -1000,16 +1005,21 @@
           <option value="GPT-5.4 mini">GPT-5.4 mini</option>
         </optgroup>
         <optgroup label="Anthropic">
-          <option value="Claude Opus 4.6">Claude Opus 4.6</option>
+          <option value="Claude Opus 4.7">Claude Opus 4.7</option>
           <option value="Claude Sonnet 4.6">Claude Sonnet 4.6</option>
           <option value="Claude Haiku 4.5">Claude Haiku 4.5</option>
         </optgroup>
         <optgroup label="Google">
+          <option value="Gemini 3 Flash">Gemini 3 Flash</option>
+          <option value="Gemini 3.1 Pro Preview">Gemini 3.1 Pro Preview</option>
           <option value="Gemini 2.5 Pro">Gemini 2.5 Pro</option>
           <option value="Gemini 2.5 Flash">Gemini 2.5 Flash</option>
         </optgroup>
         <optgroup label="xAI">
           <option value="Grok-4.20">Grok-4.20</option>
+        </optgroup>
+        <optgroup label="其他">
+          <option value="Terminus">Terminus</option>
         </optgroup>
       </select>
     </div>
@@ -1145,13 +1155,19 @@
           <div class="p-label">单节点（8卡）采购价</div>
           <input class="p-input" id="in-price8" value="160000" oninput="calc()">
           <div class="p-unit">USD</div>
-          <div class="p-note">H100 ~$160K, B200 ~$320K</div>
+          <div class="p-note">H100 ~$160K, H200 ~$240K, B200 ~$320K</div>
+        </div>
+        <div class="p-row" id="row-capex-mult">
+          <div class="p-label">基础设施 CapEx 倍数</div>
+          <input class="p-input" id="in-capex-mult" value="2.8" oninput="calc()">
+          <div class="p-unit">×</div>
+          <div class="p-note">全口径 CapEx ÷ 服务器采购价｜服务器仅占总 CapEx 的 30–40%（含网络、供电、制冷、机房）｜自建机房 2.5–3.5×｜IDC 托管 1.8–2.5×｜云 ≈ 3–5×（含运维溢价）</div>
         </div>
         <div class="p-row" id="row-salvage">
           <div class="p-label">Salvage Value</div>
           <input class="p-input" id="in-salvage" value="0" oninput="calc()">
           <div class="p-unit">USD</div>
-          <div class="p-note">折旧期满后残值</div>
+          <div class="p-note">折旧期满后残值（含全口径 CapEx 残值）</div>
         </div>
         <div class="p-row" id="row-depr">
           <div class="p-label">折旧年限</div>
@@ -1439,6 +1455,19 @@
         <div class="rev-dr"><span class="rev-dl">年化 TCO（所需节点）</span><span><span class="rev-dv" id="rv-tco-need">—</span><span class="rev-du">$/yr</span></span></div>
       </div>
 
+      <!-- CapEx 反推 -->
+      <div class="rev-detail">
+        <div class="rev-detail-title">CapEx 反推</div>
+        <div class="rev-dr"><span class="rev-dl">单节点服务器采购价</span><span><span class="rev-dv" id="rv-price8">—</span><span class="rev-du">$/node</span></span></div>
+        <div class="rev-dr"><span class="rev-dl">服务器 CapEx（所需节点）</span><span><span class="rev-dv" id="rv-server-capex">—</span><span class="rev-du">$</span></span></div>
+        <div class="rev-dr"><span class="rev-dl">基础设施 CapEx 倍数</span><span><span class="rev-dv" id="rv-capex-mult">—</span><span class="rev-du">×</span></span></div>
+        <div class="rev-dr strong">
+          <span class="rev-dl bold">全口径 CapEx</span>
+          <span><span class="rev-dv" id="rv-total-capex">—</span><span class="rev-du">$</span></span>
+        </div>
+        <div class="rev-dr"><span class="rev-dl" style="color:var(--text-3);font-size:10px">服务器占全口径比例</span><span><span class="rev-dv" style="font-size:13px;color:var(--text-3)" id="rv-server-pct">—</span><span class="rev-du">%</span></span></div>
+      </div>
+
       <!-- Breakeven -->
       <div class="rev-detail">
         <div class="rev-detail-title">盈亏平衡分析</div>
@@ -1542,28 +1571,36 @@ const MODEL_DB = [
   { vendor:'Meta', name:'Llama 4 Maverick', date:'2025.4.5', arch:'MoE(128E)', totalB:400, activeB:17, L:null, H:null, kvMode:0, context:'-', modal:'文本+Image', open:'开源', pIn:null, pOut:null, cur:'-' },
   { vendor:'Meta', name:'Llama 3.1 405B', date:'2024.7', arch:'Dense', totalB:405, activeB:405, L:126, H:16384, kvMode:1, context:'128K', modal:'文本', open:'开源', pIn:null, pOut:null, cur:'-' },
   { vendor:'Meta', name:'Llama 3.1 70B', date:'2024.7', arch:'Dense', totalB:70, activeB:70, L:80, H:8192, kvMode:1, context:'128K', modal:'文本', open:'开源', pIn:null, pOut:null, cur:'-' },
+  { vendor:'Alibaba', name:'Qwen3.5 397B A17B', date:'2026.3', arch:'MoE', totalB:397, activeB:17, L:null, H:null, kvMode:0, context:'-', modal:'文本', open:'开源', pIn:0.60, pOut:3.60, cur:'USD', note:'Artificial Analysis 定价数据' },
   { vendor:'Alibaba', name:'Qwen3-235B', date:'2025.7.25', arch:'MoE', totalB:235, activeB:22, L:null, H:null, kvMode:0, context:'-', modal:'文本', open:'开源', pIn:2.5, pOut:10, cur:'CNY' },
   { vendor:'Alibaba', name:'Qwen2.5 72B', date:'2024.9', arch:'Dense', totalB:72, activeB:72, L:80, H:8192, kvMode:1, context:'128K', modal:'文本', open:'开源', pIn:null, pOut:null, cur:'-' },
-  { vendor:'Zhipu AI', name:'GLM-5', date:'2026.2.12', arch:'MoE', totalB:744, activeB:40, L:78, H:6144, kvMode:0, context:'128K', modal:'文本+Image', open:'开源', pIn:4.0, pOut:18.0, cur:'CNY', note:'' },
-  { vendor:'Zhipu AI', name:'GLM-5.1', date:'2026.4', arch:'MoE', totalB:744, activeB:40, L:78, H:6144, kvMode:0, context:'128K', modal:'文本+Image', open:'开源', pIn:6.0, pOut:24.0, cur:'CNY', note:'定价为区间（上下文相关），实际以上下文字节计费；技术参数继承GLM-5' },
-  { vendor:'MiniMax', name:'MiniMax M2.7', date:'2026.3', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'-', modal:'文本', open:'闭源', pIn:null, pOut:null, cur:'CNY', note:'技术参数未公开；采用 Token Plan 会员订阅模式而非按 Token 计费' },
-  { vendor:'Moonshot AI', name:'Kimi K2.5', date:'-', arch:'MoE', totalB:1000, activeB:32, L:null, H:null, kvMode:0, context:'-', modal:'文本+Image', open:'闭源', pIn:null, pOut:null, cur:'-' },
-  { vendor:'MiniMax', name:'MiniMax M2.5', date:'2026.2.13', arch:'MoE', totalB:230, activeB:10, L:null, H:null, kvMode:0, context:'192K', modal:'文本', open:'闭源', pIn:null, pOut:null, cur:'CNY', note:'总参数230B / 激活10B（来源：百度百科）；Token Plan会员订阅，非按量计费' },
-  { vendor:'开源AI', name:'GPT-5.4', date:'2026.3.6', arch:'N/A', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'1,050K', modal:'文本+Image', open:'闭源', pIn:2.50, pOut:15.00, cur:'USD' },
+  { vendor:'Zhipu AI', name:'GLM-4.7', date:'2026.3', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'-', modal:'文本+Image', open:'闭源', pIn:0.60, pOut:2.20, cur:'USD', note:'Artificial Analysis 定价数据' },
+  { vendor:'Zhipu AI', name:'GLM-5', date:'2026.2.12', arch:'MoE', totalB:744, activeB:40, L:78, H:6144, kvMode:0, context:'128K', modal:'文本+Image', open:'开源', pIn:1.00, pOut:3.20, cur:'USD', note:'Artificial Analysis 定价数据' },
+  { vendor:'Zhipu AI', name:'GLM-5.1', date:'2026.4', arch:'MoE', totalB:744, activeB:40, L:78, H:6144, kvMode:0, context:'128K', modal:'文本+Image', open:'开源', pIn:1.40, pOut:4.40, cur:'USD', note:'Artificial Analysis 定价数据；技术参数继承GLM-5' },
+  { vendor:'MiniMax', name:'MiniMax V2 Flash', date:'2026.2', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'-', modal:'文本', open:'闭源', pIn:0.10, pOut:0.30, cur:'USD', note:'Artificial Analysis 定价数据' },
+  { vendor:'MiniMax', name:'MiniMax M2.1', date:'2026.1', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'-', modal:'文本', open:'闭源', pIn:0.30, pOut:1.20, cur:'USD', note:'Artificial Analysis 定价数据' },
+  { vendor:'MiniMax', name:'MiniMax M2.5', date:'2026.2.13', arch:'MoE', totalB:230, activeB:10, L:null, H:null, kvMode:0, context:'192K', modal:'文本', open:'闭源', pIn:0.30, pOut:1.20, cur:'USD', note:'总参数230B / 激活10B（来源：百度百科）；Artificial Analysis 定价数据' },
+  { vendor:'MiniMax', name:'MiniMax M2.7', date:'2026.3', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'-', modal:'文本', open:'闭源', pIn:0.30, pOut:1.20, cur:'USD', note:'Artificial Analysis 定价数据' },
+  { vendor:'Moonshot AI', name:'Kimi K2 Thinking', date:'2026.3', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'-', modal:'文本+Image', open:'闭源', pIn:0.60, pOut:2.50, cur:'USD', note:'Artificial Analysis 定价数据' },
+  { vendor:'Moonshot AI', name:'Kimi K2.5', date:'2026.4', arch:'MoE', totalB:1000, activeB:32, L:null, H:null, kvMode:0, context:'-', modal:'文本+Image', open:'闭源', pIn:0.60, pOut:3.00, cur:'USD', note:'Artificial Analysis 定价数据' },
+  { vendor:'开源AI', name:'GPT-5.4', date:'2026.3.6', arch:'N/A', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'1,050K', modal:'文本+Image', open:'闭源', pIn:2.50, pOut:12.00, cur:'USD' },
   { vendor:'开源AI', name:'GPT-5.4 mini', date:'2026.3.6', arch:'N/A', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'400K', modal:'文本+Image', open:'闭源', pIn:0.75, pOut:4.50, cur:'USD' },
   { vendor:'开源AI', name:'GPT-5.4 nano', date:'2026.3.6', arch:'N/A', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'-', modal:'文本+Image', open:'闭源', pIn:0.20, pOut:1.25, cur:'USD' },
-  { vendor:'Anthropic', name:'Claude Opus 4.6', date:'2026.2.6', arch:'Dense', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'1,000K', modal:'文本+Image', open:'闭源', pIn:5.00, pOut:25.00, cur:'USD' },
+  { vendor:'Anthropic', name:'Claude Opus 4.7', date:'2026.2.6', arch:'Dense', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'1,000K', modal:'文本+Image', open:'闭源', pIn:5.00, pOut:25.00, cur:'USD' },
   { vendor:'Anthropic', name:'Claude Sonnet 4.6', date:'2026.2.18', arch:'Dense', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'1,000K', modal:'文本+Image', open:'闭源', pIn:3.00, pOut:15.00, cur:'USD' },
   { vendor:'Anthropic', name:'Claude Haiku 4.5', date:'2025.10.15', arch:'Dense', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'200K', modal:'文本+Image', open:'闭源', pIn:1.00, pOut:5.00, cur:'USD' },
+  { vendor:'Google', name:'Gemini 3 Flash', date:'2026.3', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'1,000K', modal:'文本+Image+Audio', open:'闭源', pIn:0.50, pOut:3.00, cur:'USD', note:'Artificial Analysis 定价数据' },
+  { vendor:'Google', name:'Gemini 3.1 Pro Preview', date:'2026.4', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'1,000K', modal:'文本+Image+Video', open:'闭源', pIn:2.00, pOut:6.00, cur:'USD', note:'Artificial Analysis 定价数据' },
   { vendor:'Google', name:'Gemini 2.5 Pro', date:'2025.3.25', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'1,000K', modal:'文本+Image+Video', open:'闭源', pIn:1.25, pOut:10.00, cur:'USD' },
   { vendor:'Google', name:'Gemini 2.5 Flash', date:'2025.4.17', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'1,000K', modal:'文本+Image+Audio', open:'闭源', pIn:0.30, pOut:2.50, cur:'USD' },
   { vendor:'Google', name:'Gemini 2.5 Flash-Lite', date:'2025.6.17', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'1,000K', modal:'文本+Image+Audio', open:'闭源', pIn:0.10, pOut:0.40, cur:'USD' },
-  { vendor:'xAI', name:'Grok-4.20', date:'2026.2.18', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'256K/2M', modal:'文本+Image', open:'闭源', pIn:2.00, pOut:6.00, cur:'USD' },
+  { vendor:'xAI', name:'Grok-4.20', date:'2026.2.18', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'256K/2M', modal:'文本+Image', open:'闭源', pIn:2.00, pOut:4.40, cur:'USD', note:'Artificial Analysis 定价数据（O3O9 v2版本）' },
   { vendor:'xAI', name:'Grok-4-1-fast', date:'-', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'-', modal:'文本+Image', open:'闭源', pIn:0.20, pOut:0.50, cur:'USD' },
   { vendor:'Alibaba', name:'Qwen-Max', date:'-', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'32K', modal:'文本', open:'闭源(API)', pIn:2.4, pOut:9.6, cur:'CNY' },
   { vendor:'Alibaba', name:'Qwen-Plus', date:'-', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'128K', modal:'文本', open:'闭源(API)', pIn:0.8, pOut:2.0, cur:'CNY' },
   { vendor:'Alibaba', name:'Qwen-Turbo', date:'-', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'1,000K', modal:'文本', open:'闭源(API)', pIn:0.3, pOut:0.6, cur:'CNY' },
   { vendor:'ByteDance', name:'Doubao Seed 2.0 Pro', date:'-', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'128K', modal:'文本+Image', open:'闭源', pIn:3.2, pOut:16, cur:'CNY' },
+  { vendor:'其他', name:'Terminus', date:'-', arch:'N/A', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'-', modal:'文本', open:'闭源', pIn:1.64, pOut:2.75, cur:'USD', note:'Artificial Analysis 定价数据' },
 ];
 
 const MODEL_PARAMS = {
@@ -1575,19 +1612,27 @@ const MODEL_PARAMS = {
   'Llama 3.1 70B':   { arch:0, totalB:70,  activeB:70,  L:80,  H:8192,  kvMode:1 },
   'Qwen3-235B':       { arch:1, totalB:235, activeB:22, L:null, H:null, kvMode:0, pIn:2.5, pOut:10, cur:'CNY' },
   'Qwen2.5 72B':      { arch:0, totalB:72,  activeB:72,  L:80,  H:8192,  kvMode:1 },
-  'GLM-5':           { arch:1, totalB:744, activeB:40, L:78, H:6144, kvMode:0, pIn:4.0, pOut:18.0, cur:'CNY' },
-  'GLM-5.1':         { arch:1, totalB:744, activeB:40, L:78, H:6144, kvMode:0, pIn:6.0, pOut:24.0, cur:'CNY' },
-  'Kimi K2.5':       { arch:1, totalB:1000,activeB:32,  L:null, H:null, kvMode:0 },
-  'MiniMax M2.5':   { arch:1, totalB:230, activeB:10,  L:null, H:null, kvMode:0 },
-  'MiniMax M2.7':   { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0 },
-  'GPT-5.4':         { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:2.50, pOut:15.00, cur:'USD' },
+  'GLM-4.7':         { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.60, pOut:2.20, cur:'USD' },
+  'GLM-5':           { arch:1, totalB:744, activeB:40, L:78, H:6144, kvMode:0, pIn:1.00, pOut:3.20, cur:'USD' },
+  'GLM-5.1':         { arch:1, totalB:744, activeB:40, L:78, H:6144, kvMode:0, pIn:1.40, pOut:4.40, cur:'USD' },
+  'MiniMax V2 Flash':{ arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.10, pOut:0.30, cur:'USD' },
+  'MiniMax M2.1':    { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.30, pOut:1.20, cur:'USD' },
+  'MiniMax M2.5':    { arch:1, totalB:230, activeB:10,  L:null, H:null, kvMode:0, pIn:0.30, pOut:1.20, cur:'USD' },
+  'MiniMax M2.7':    { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.30, pOut:1.20, cur:'USD' },
+  'Kimi K2 Thinking':{ arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.60, pOut:2.50, cur:'USD' },
+  'Kimi K2.5':       { arch:1, totalB:1000,activeB:32,  L:null, H:null, kvMode:0, pIn:0.60, pOut:3.00, cur:'USD' },
+  'GPT-5.4':         { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:2.50, pOut:12.00, cur:'USD' },
   'GPT-5.4 mini':    { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.75, pOut:4.50, cur:'USD' },
-  'Claude Opus 4.6': { arch:0, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:5.00, pOut:25.00, cur:'USD' },
+  'Claude Opus 4.7': { arch:0, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:5.00, pOut:25.00, cur:'USD' },
   'Claude Sonnet 4.6':{ arch:0, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:3.00, pOut:15.00, cur:'USD' },
   'Claude Haiku 4.5':{ arch:0, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:1.00, pOut:5.00, cur:'USD' },
+  'Gemini 3 Flash':  { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.50, pOut:3.00, cur:'USD' },
+  'Gemini 3.1 Pro Preview':{ arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:2.00, pOut:6.00, cur:'USD' },
   'Gemini 2.5 Pro':  { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:1.25, pOut:10.00, cur:'USD' },
   'Gemini 2.5 Flash':{ arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.30, pOut:2.50, cur:'USD' },
-  'Grok-4.20':       { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:2.00, pOut:6.00, cur:'USD' },
+  'Grok-4.20':       { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:2.00, pOut:4.40, cur:'USD' },
+  'Qwen3.5 397B A17B':{ arch:1, totalB:397, activeB:17, L:null, H:null, kvMode:0, pIn:0.60, pOut:3.60, cur:'USD' },
+  'Terminus':        { arch:0, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:1.64, pOut:2.75, cur:'USD' },
 };
 
 const GPU_DB = [
@@ -1745,7 +1790,7 @@ function setHwMode(mode) {
   const isRental = mode === 'rental';
   document.getElementById('btn-selfbuild').className = 'mode-btn' + (isRental ? '' : ' active-self');
   document.getElementById('btn-rental').className = 'mode-btn' + (isRental ? ' active-rent' : '');
-  ['row-price8','row-salvage','row-depr','row-tdp','row-pue','row-elec','row-net'].forEach(id => {
+  ['row-price8','row-capex-mult','row-salvage','row-depr','row-tdp','row-pue','row-elec','row-net'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = isRental ? 'none' : '';
   });
@@ -1776,7 +1821,7 @@ function resetAll() {
   document.getElementById('sel-gpu').value = 'H200 SXM';
   onGpuChange();
   const defaults = {
-    'in-salvage':'0','in-depr':'5','in-pue':'1.3','in-elec':'0.06','in-net':'10','in-util':'85',
+    'in-salvage':'0','in-depr':'5','in-capex-mult':'2.8','in-pue':'1.3','in-elec':'0.06','in-net':'10','in-util':'85',
     'in-isl':'1024','in-osl':'2048','in-batch':'25','in-comm':'0.05','in-mbu':'40','in-mfu':'35',
   };
   Object.entries(defaults).forEach(([id,val]) => { const el=document.getElementById(id); if(el) el.value=val; });
@@ -1810,9 +1855,10 @@ function fmtK(n) {
 function set(id, val) { const el=document.getElementById(id); if(el) el.textContent=val; }
 
 function calc() {
-  const price8   = getNum('in-price8');
-  const salvage  = getNum('in-salvage');
-  const deprYrs  = getNum('in-depr');
+  const price8      = getNum('in-price8');
+  const capexMult   = getNum('in-capex-mult') || 1;
+  const salvage     = getNum('in-salvage');
+  const deprYrs     = getNum('in-depr');
   const tdp      = getNum('in-tdp');
   const pue      = getNum('in-pue');
   const elec     = getNum('in-elec');
@@ -1880,7 +1926,7 @@ function calc() {
     tco = cRent;
   } else {
     cRent = 0;
-    cHw   = (nodes * price8 - salvage) / deprYrs;
+    cHw   = (nodes * price8 * capexMult - salvage) / deprYrs;
     cPwr  = tdp * actualGpus * 8760 * pue * elec;
     cOpex = cHw * netPct;
     tco   = cHw + cPwr + cOpex;
@@ -2087,6 +2133,26 @@ function calcRevenue() {
   setR('rv-capacity',    fmt(capacityRevM, 2));
   setR('rv-breakeven',   isFinite(breakevenRevM) ? fmt(breakevenRevM, 2) : '—');
   setR('rv-tco-per-node','$' + fmtK(_cs.tcoPerNode));
+
+  // ── CapEx 反推（与左侧倍数联动）
+  const price8     = parseFloat(document.getElementById('in-price8')?.value)      || 0;
+  const capexMult  = parseFloat(document.getElementById('in-capex-mult')?.value)  || 1;
+  const isRental   = document.getElementById('btn-rental')?.classList.contains('active-rent');
+  if (!isRental && price8 > 0) {
+    const serverCapex = nodesNeeded * price8;
+    const totalCapex  = serverCapex * capexMult;
+    const serverPct   = 100 / capexMult;
+    setR('rv-price8',       '$' + fmtK(price8));
+    setR('rv-server-capex', '$' + fmtK(serverCapex));
+    setR('rv-capex-mult',   fmt(capexMult, 1));
+    setR('rv-total-capex',  '$' + fmtK(totalCapex));
+    setR('rv-server-pct',   fmt(serverPct, 1));
+    document.getElementById('rv-capex-section') && (document.getElementById('rv-capex-section').style.display = '');
+  } else {
+    // 租赁模式下 CapEx 无意义，显示提示
+    ['rv-price8','rv-server-capex','rv-capex-mult','rv-total-capex','rv-server-pct']
+      .forEach(id => setR(id, isRental ? '云租赁' : '—'));
+  }
 }
 
 function resetOutputs() {
