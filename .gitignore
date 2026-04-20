@@ -1,0 +1,5 @@
+*_backup_*.html
+*.xlsx
+*.png
+*.py
+.DS_Store
