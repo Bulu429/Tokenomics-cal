@@ -990,8 +990,11 @@
           <option value="GLM-5">GLM-5 (744B MoE)</option>
           <option value="GLM-5.1">GLM-5.1 (744B MoE)</option>
         </optgroup>
+        <optgroup label="Xiaomi">
+          <option value="MiMo V2 Flash">MiMo V2 Flash</option>
+          <option value="MiMo V2 Pro">MiMo V2 Pro</option>
+        </optgroup>
         <optgroup label="MiniMax">
-          <option value="MiniMax V2 Flash">MiniMax V2 Flash</option>
           <option value="MiniMax M2.1">MiniMax M2.1</option>
           <option value="MiniMax M2.5">MiniMax M2.5 (230B MoE)</option>
           <option value="MiniMax M2.7">MiniMax M2.7</option>
@@ -1000,9 +1003,15 @@
           <option value="Kimi K2 Thinking">Kimi K2 Thinking</option>
           <option value="Kimi K2.5">Kimi K2.5 (~1T MoE)</option>
         </optgroup>
-        <optgroup label="开源AI">
+        <optgroup label="StepFun">
+          <option value="Step 3.5 Flash">Step 3.5 Flash</option>
+        </optgroup>
+        <optgroup label="OpenAI">
           <option value="GPT-5.4">GPT-5.4</option>
           <option value="GPT-5.4 mini">GPT-5.4 mini</option>
+          <option value="GPT-5.4 nano">GPT-5.4 nano</option>
+          <option value="gpt-oss-120B">gpt-oss-120B</option>
+          <option value="gpt-oss-20B">gpt-oss-20B</option>
         </optgroup>
         <optgroup label="Anthropic">
           <option value="Claude Opus 4.7">Claude Opus 4.7</option>
@@ -1010,13 +1019,15 @@
           <option value="Claude Haiku 4.5">Claude Haiku 4.5</option>
         </optgroup>
         <optgroup label="Google">
-          <option value="Gemini 3 Flash">Gemini 3 Flash</option>
           <option value="Gemini 3.1 Pro Preview">Gemini 3.1 Pro Preview</option>
+          <option value="Gemini 3 Flash">Gemini 3 Flash</option>
+          <option value="Gemini 3.1 Flash-Lite">Gemini 3.1 Flash-Lite</option>
           <option value="Gemini 2.5 Pro">Gemini 2.5 Pro</option>
           <option value="Gemini 2.5 Flash">Gemini 2.5 Flash</option>
         </optgroup>
         <optgroup label="xAI">
           <option value="Grok-4.20">Grok-4.20</option>
+          <option value="Grok 4.1 Fast">Grok 4.1 Fast</option>
         </optgroup>
         <optgroup label="其他">
           <option value="Terminus">Terminus</option>
@@ -1515,6 +1526,9 @@
           <th>输入 $/M</th>
           <th>输出 $/M</th>
           <th>货币</th>
+          <th>AA Score</th>
+          <th>速度 t/s</th>
+          <th>TTFT(s)</th>
           <th>操作</th>
         </tr>
       </thead>
@@ -1565,42 +1579,62 @@
 // ============================================================
 
 const MODEL_DB = [
-  { vendor:'DeepSeek', name:'DeepSeek V3.2', date:'2025.9.29', arch:'MoE', totalB:671, activeB:37, L:61, H:7168, kvMode:1, context:'128K', modal:'文本', open:'开源', pIn:0.28, pOut:0.42, cur:'USD' },
-  { vendor:'DeepSeek', name:'DeepSeek R1', date:'2025.1.20', arch:'MoE', totalB:671, activeB:37, L:61, H:7168, kvMode:1, context:'128K', modal:'文本', open:'开源', pIn:0.28, pOut:0.42, cur:'USD' },
-  { vendor:'Meta', name:'Llama 4 Scout', date:'2025.4.5', arch:'MoE(16E)', totalB:109, activeB:17, L:null, H:null, kvMode:0, context:'10,000K', modal:'文本+Image', open:'开源', pIn:null, pOut:null, cur:'-' },
-  { vendor:'Meta', name:'Llama 4 Maverick', date:'2025.4.5', arch:'MoE(128E)', totalB:400, activeB:17, L:null, H:null, kvMode:0, context:'-', modal:'文本+Image', open:'开源', pIn:null, pOut:null, cur:'-' },
-  { vendor:'Meta', name:'Llama 3.1 405B', date:'2024.7', arch:'Dense', totalB:405, activeB:405, L:126, H:16384, kvMode:1, context:'128K', modal:'文本', open:'开源', pIn:null, pOut:null, cur:'-' },
-  { vendor:'Meta', name:'Llama 3.1 70B', date:'2024.7', arch:'Dense', totalB:70, activeB:70, L:80, H:8192, kvMode:1, context:'128K', modal:'文本', open:'开源', pIn:null, pOut:null, cur:'-' },
-  { vendor:'Alibaba', name:'Qwen3.5 397B A17B', date:'2026.3', arch:'MoE', totalB:397, activeB:17, L:null, H:null, kvMode:0, context:'-', modal:'文本', open:'开源', pIn:0.60, pOut:3.60, cur:'USD', note:'Artificial Analysis 定价数据' },
-  { vendor:'Alibaba', name:'Qwen3-235B', date:'2025.7.25', arch:'MoE', totalB:235, activeB:22, L:null, H:null, kvMode:0, context:'-', modal:'文本', open:'开源', pIn:2.5, pOut:10, cur:'CNY' },
-  { vendor:'Alibaba', name:'Qwen2.5 72B', date:'2024.9', arch:'Dense', totalB:72, activeB:72, L:80, H:8192, kvMode:1, context:'128K', modal:'文本', open:'开源', pIn:null, pOut:null, cur:'-' },
-  { vendor:'Zhipu AI', name:'GLM-4.7', date:'2026.3', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'-', modal:'文本+Image', open:'闭源', pIn:0.60, pOut:2.20, cur:'USD', note:'Artificial Analysis 定价数据' },
-  { vendor:'Zhipu AI', name:'GLM-5', date:'2026.2.12', arch:'MoE', totalB:744, activeB:40, L:78, H:6144, kvMode:0, context:'128K', modal:'文本+Image', open:'开源', pIn:1.00, pOut:3.20, cur:'USD', note:'Artificial Analysis 定价数据' },
-  { vendor:'Zhipu AI', name:'GLM-5.1', date:'2026.4', arch:'MoE', totalB:744, activeB:40, L:78, H:6144, kvMode:0, context:'128K', modal:'文本+Image', open:'开源', pIn:1.40, pOut:4.40, cur:'USD', note:'Artificial Analysis 定价数据；技术参数继承GLM-5' },
-  { vendor:'MiniMax', name:'MiniMax V2 Flash', date:'2026.2', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'-', modal:'文本', open:'闭源', pIn:0.10, pOut:0.30, cur:'USD', note:'Artificial Analysis 定价数据' },
-  { vendor:'MiniMax', name:'MiniMax M2.1', date:'2026.1', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'-', modal:'文本', open:'闭源', pIn:0.30, pOut:1.20, cur:'USD', note:'Artificial Analysis 定价数据' },
-  { vendor:'MiniMax', name:'MiniMax M2.5', date:'2026.2.13', arch:'MoE', totalB:230, activeB:10, L:null, H:null, kvMode:0, context:'192K', modal:'文本', open:'闭源', pIn:0.30, pOut:1.20, cur:'USD', note:'总参数230B / 激活10B（来源：百度百科）；Artificial Analysis 定价数据' },
-  { vendor:'MiniMax', name:'MiniMax M2.7', date:'2026.3', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'-', modal:'文本', open:'闭源', pIn:0.30, pOut:1.20, cur:'USD', note:'Artificial Analysis 定价数据' },
-  { vendor:'Moonshot AI', name:'Kimi K2 Thinking', date:'2026.3', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'-', modal:'文本+Image', open:'闭源', pIn:0.60, pOut:2.50, cur:'USD', note:'Artificial Analysis 定价数据' },
-  { vendor:'Moonshot AI', name:'Kimi K2.5', date:'2026.4', arch:'MoE', totalB:1000, activeB:32, L:null, H:null, kvMode:0, context:'-', modal:'文本+Image', open:'闭源', pIn:0.60, pOut:3.00, cur:'USD', note:'Artificial Analysis 定价数据' },
-  { vendor:'开源AI', name:'GPT-5.4', date:'2026.3.6', arch:'N/A', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'1,050K', modal:'文本+Image', open:'闭源', pIn:2.50, pOut:12.00, cur:'USD' },
-  { vendor:'开源AI', name:'GPT-5.4 mini', date:'2026.3.6', arch:'N/A', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'400K', modal:'文本+Image', open:'闭源', pIn:0.75, pOut:4.50, cur:'USD' },
-  { vendor:'开源AI', name:'GPT-5.4 nano', date:'2026.3.6', arch:'N/A', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'-', modal:'文本+Image', open:'闭源', pIn:0.20, pOut:1.25, cur:'USD' },
-  { vendor:'Anthropic', name:'Claude Opus 4.7', date:'2026.2.6', arch:'Dense', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'1,000K', modal:'文本+Image', open:'闭源', pIn:5.00, pOut:25.00, cur:'USD' },
-  { vendor:'Anthropic', name:'Claude Sonnet 4.6', date:'2026.2.18', arch:'Dense', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'1,000K', modal:'文本+Image', open:'闭源', pIn:3.00, pOut:15.00, cur:'USD' },
-  { vendor:'Anthropic', name:'Claude Haiku 4.5', date:'2025.10.15', arch:'Dense', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'200K', modal:'文本+Image', open:'闭源', pIn:1.00, pOut:5.00, cur:'USD' },
-  { vendor:'Google', name:'Gemini 3 Flash', date:'2026.3', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'1,000K', modal:'文本+Image+Audio', open:'闭源', pIn:0.50, pOut:3.00, cur:'USD', note:'Artificial Analysis 定价数据' },
-  { vendor:'Google', name:'Gemini 3.1 Pro Preview', date:'2026.4', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'1,000K', modal:'文本+Image+Video', open:'闭源', pIn:2.00, pOut:6.00, cur:'USD', note:'Artificial Analysis 定价数据' },
-  { vendor:'Google', name:'Gemini 2.5 Pro', date:'2025.3.25', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'1,000K', modal:'文本+Image+Video', open:'闭源', pIn:1.25, pOut:10.00, cur:'USD' },
-  { vendor:'Google', name:'Gemini 2.5 Flash', date:'2025.4.17', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'1,000K', modal:'文本+Image+Audio', open:'闭源', pIn:0.30, pOut:2.50, cur:'USD' },
-  { vendor:'Google', name:'Gemini 2.5 Flash-Lite', date:'2025.6.17', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'1,000K', modal:'文本+Image+Audio', open:'闭源', pIn:0.10, pOut:0.40, cur:'USD' },
-  { vendor:'xAI', name:'Grok-4.20', date:'2026.2.18', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'256K/2M', modal:'文本+Image', open:'闭源', pIn:2.00, pOut:4.40, cur:'USD', note:'Artificial Analysis 定价数据（O3O9 v2版本）' },
-  { vendor:'xAI', name:'Grok-4-1-fast', date:'-', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'-', modal:'文本+Image', open:'闭源', pIn:0.20, pOut:0.50, cur:'USD' },
-  { vendor:'Alibaba', name:'Qwen-Max', date:'-', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'32K', modal:'文本', open:'闭源(API)', pIn:2.4, pOut:9.6, cur:'CNY' },
-  { vendor:'Alibaba', name:'Qwen-Plus', date:'-', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'128K', modal:'文本', open:'闭源(API)', pIn:0.8, pOut:2.0, cur:'CNY' },
-  { vendor:'Alibaba', name:'Qwen-Turbo', date:'-', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'1,000K', modal:'文本', open:'闭源(API)', pIn:0.3, pOut:0.6, cur:'CNY' },
-  { vendor:'ByteDance', name:'Doubao Seed 2.0 Pro', date:'-', arch:'MoE', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'128K', modal:'文本+Image', open:'闭源', pIn:3.2, pOut:16, cur:'CNY' },
-  { vendor:'其他', name:'Terminus', date:'-', arch:'N/A', totalB:null, activeB:null, L:null, H:null, kvMode:0, context:'-', modal:'文本', open:'闭源', pIn:1.64, pOut:2.75, cur:'USD', note:'Artificial Analysis 定价数据' },
+  // ── DeepSeek ──────────────────────────────────────────────────────────────
+  { vendor:'DeepSeek', name:'DeepSeek V3.2',      date:'2025.9.29', arch:'MoE',      totalB:671,  activeB:37,  L:61,  H:7168,  kvMode:1, context:'128K',     modal:'文本',         open:'开源',      pIn:0.28, pOut:0.42,  cur:'USD', aaScore:42, aaSpeed:32,  aaLatency:1.45 },
+  { vendor:'DeepSeek', name:'DeepSeek R1',         date:'2025.1.20', arch:'MoE',      totalB:671,  activeB:37,  L:61,  H:7168,  kvMode:1, context:'128K',     modal:'文本',         open:'开源',      pIn:0.28, pOut:0.42,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null },
+  // ── Meta ──────────────────────────────────────────────────────────────────
+  { vendor:'Meta',     name:'Llama 4 Scout',       date:'2025.4.5',  arch:'MoE(16E)', totalB:109,  activeB:17,  L:null,H:null,  kvMode:0, context:'10,000K',  modal:'文本+Image',   open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:14, aaSpeed:133, aaLatency:0.80 },
+  { vendor:'Meta',     name:'Llama 4 Maverick',    date:'2025.4.5',  arch:'MoE(128E)',totalB:400,  activeB:17,  L:null,H:null,  kvMode:0, context:'-',        modal:'文本+Image',   open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:18, aaSpeed:114, aaLatency:1.03 },
+  { vendor:'Meta',     name:'Llama 3.1 405B',      date:'2024.7',    arch:'Dense',    totalB:405,  activeB:405, L:126, H:16384, kvMode:1, context:'128K',     modal:'文本',         open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:17, aaSpeed:29,  aaLatency:2.42 },
+  { vendor:'Meta',     name:'Llama 3.1 70B',       date:'2024.7',    arch:'Dense',    totalB:70,   activeB:70,  L:80,  H:8192,  kvMode:1, context:'128K',     modal:'文本',         open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:null,aaSpeed:null,aaLatency:null },
+  // ── Alibaba ───────────────────────────────────────────────────────────────
+  { vendor:'Alibaba',  name:'Qwen3.5 397B A17B',   date:'2026.3',    arch:'MoE',      totalB:397,  activeB:17,  L:null,H:null,  kvMode:0, context:'262K',     modal:'文本',         open:'开源',      pIn:0.60, pOut:3.60,  cur:'USD', aaScore:45, aaSpeed:53,  aaLatency:2.60, note:'Artificial Analysis 定价数据' },
+  { vendor:'Alibaba',  name:'Qwen3-235B',           date:'2025.7.25', arch:'MoE',      totalB:235,  activeB:22,  L:null,H:null,  kvMode:0, context:'-',        modal:'文本',         open:'开源',      pIn:2.5,  pOut:10,    cur:'CNY', aaScore:null,aaSpeed:null,aaLatency:null },
+  { vendor:'Alibaba',  name:'Qwen2.5 72B',          date:'2024.9',    arch:'Dense',    totalB:72,   activeB:72,  L:80,  H:8192,  kvMode:1, context:'128K',     modal:'文本',         open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:null,aaSpeed:null,aaLatency:null },
+  { vendor:'Alibaba',  name:'Qwen-Max',             date:'-',         arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'32K',      modal:'文本',         open:'闭源(API)', pIn:2.4,  pOut:9.6,   cur:'CNY', aaScore:null,aaSpeed:null,aaLatency:null },
+  { vendor:'Alibaba',  name:'Qwen-Plus',            date:'-',         arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'128K',     modal:'文本',         open:'闭源(API)', pIn:0.8,  pOut:2.0,   cur:'CNY', aaScore:null,aaSpeed:null,aaLatency:null },
+  { vendor:'Alibaba',  name:'Qwen-Turbo',           date:'-',         arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'1,000K',   modal:'文本',         open:'闭源(API)', pIn:0.3,  pOut:0.6,   cur:'CNY', aaScore:null,aaSpeed:null,aaLatency:null },
+  // ── Zhipu AI ──────────────────────────────────────────────────────────────
+  { vendor:'Zhipu AI', name:'GLM-4.7',             date:'2026.3',    arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'-',        modal:'文本+Image',   open:'闭源',      pIn:0.60, pOut:2.20,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null, note:'Artificial Analysis 定价数据' },
+  { vendor:'Zhipu AI', name:'GLM-5',               date:'2026.2.12', arch:'MoE',      totalB:744,  activeB:40,  L:78,  H:6144,  kvMode:0, context:'128K',     modal:'文本+Image',   open:'开源',      pIn:1.00, pOut:3.20,  cur:'USD', aaScore:50, aaSpeed:69,  aaLatency:1.78, note:'Artificial Analysis 定价数据' },
+  { vendor:'Zhipu AI', name:'GLM-5.1',             date:'2026.4',    arch:'MoE',      totalB:744,  activeB:40,  L:78,  H:6144,  kvMode:0, context:'128K',     modal:'文本+Image',   open:'开源',      pIn:1.40, pOut:4.40,  cur:'USD', aaScore:51, aaSpeed:45,  aaLatency:1.63, note:'Artificial Analysis 定价数据；技术参数继承GLM-5' },
+  // ── Xiaomi ────────────────────────────────────────────────────────────────
+  { vendor:'Xiaomi',   name:'MiMo V2 Flash',        date:'2026.2',    arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'256K',     modal:'文本',         open:'闭源',      pIn:0.10, pOut:0.30,  cur:'USD', aaScore:41, aaSpeed:132, aaLatency:2.11, note:'Artificial Analysis 定价数据；MiMo = 小米自研模型系列' },
+  { vendor:'Xiaomi',   name:'MiMo V2 Pro',          date:'2026.3',    arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'1,000K',   modal:'文本',         open:'闭源',      pIn:null, pOut:null,  cur:'-',   aaScore:49, aaSpeed:70,  aaLatency:3.26, note:'小米自研模型系列' },
+  // ── MiniMax ───────────────────────────────────────────────────────────────
+  { vendor:'MiniMax',  name:'MiniMax M2.1',         date:'2026.1',    arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'-',        modal:'文本',         open:'闭源',      pIn:0.30, pOut:1.20,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null, note:'Artificial Analysis 定价数据' },
+  { vendor:'MiniMax',  name:'MiniMax M2.5',         date:'2026.2.13', arch:'MoE',      totalB:230,  activeB:10,  L:null,H:null,  kvMode:0, context:'192K',     modal:'文本',         open:'闭源',      pIn:0.30, pOut:1.20,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null, note:'总参数230B / 激活10B（来源：百度百科）；Artificial Analysis 定价数据' },
+  { vendor:'MiniMax',  name:'MiniMax M2.7',         date:'2026.3',    arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'205K',     modal:'文本',         open:'闭源',      pIn:0.30, pOut:1.20,  cur:'USD', aaScore:50, aaSpeed:48,  aaLatency:2.10, note:'Artificial Analysis 定价数据' },
+  // ── Moonshot AI ───────────────────────────────────────────────────────────
+  { vendor:'Moonshot AI',name:'Kimi K2 Thinking',   date:'2026.3',    arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'-',        modal:'文本+Image',   open:'闭源',      pIn:0.60, pOut:2.50,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null, note:'Artificial Analysis 定价数据' },
+  { vendor:'Moonshot AI',name:'Kimi K2.5',           date:'2026.4',    arch:'MoE',      totalB:1000, activeB:32,  L:null,H:null,  kvMode:0, context:'256K',     modal:'文本+Image',   open:'闭源',      pIn:0.60, pOut:3.00,  cur:'USD', aaScore:47, aaSpeed:37,  aaLatency:2.82, note:'Artificial Analysis 定价数据' },
+  // ── StepFun ───────────────────────────────────────────────────────────────
+  { vendor:'StepFun',  name:'Step 3.5 Flash',       date:'2026.3',    arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'256K',     modal:'文本',         open:'闭源',      pIn:null, pOut:null,  cur:'-',   aaScore:38, aaSpeed:173, aaLatency:1.05, note:'AA blended $0.15/M（3:1 比例）' },
+  // ── OpenAI ────────────────────────────────────────────────────────────────
+  { vendor:'OpenAI',   name:'GPT-5.4',              date:'2026.3.6',  arch:'N/A',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'1,050K',   modal:'文本+Image',   open:'闭源',      pIn:2.50, pOut:12.00, cur:'USD', aaScore:57, aaSpeed:80,  aaLatency:231.16, note:'AA速度为xhigh推理模式（含长思考）' },
+  { vendor:'OpenAI',   name:'GPT-5.4 mini',         date:'2026.3.6',  arch:'N/A',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'400K',     modal:'文本+Image',   open:'闭源',      pIn:0.75, pOut:4.50,  cur:'USD', aaScore:49, aaSpeed:180, aaLatency:9.00 },
+  { vendor:'OpenAI',   name:'GPT-5.4 nano',         date:'2026.3.6',  arch:'N/A',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'400K',     modal:'文本+Image',   open:'闭源',      pIn:0.20, pOut:1.25,  cur:'USD', aaScore:44, aaSpeed:159, aaLatency:4.46 },
+  { vendor:'OpenAI',   name:'gpt-oss-120B',         date:'-',         arch:'Dense',    totalB:120,  activeB:120, L:null,H:null,  kvMode:0, context:'131K',     modal:'文本',         open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:33, aaSpeed:211, aaLatency:0.90, note:'AA blended $0.26/M（3:1 比例）' },
+  { vendor:'OpenAI',   name:'gpt-oss-20B',          date:'-',         arch:'Dense',    totalB:20,   activeB:20,  L:null,H:null,  kvMode:0, context:'131K',     modal:'文本',         open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:24, aaSpeed:266, aaLatency:0.68, note:'AA blended $0.10/M（3:1 比例）' },
+  // ── Anthropic ─────────────────────────────────────────────────────────────
+  { vendor:'Anthropic',name:'Claude Opus 4.7',      date:'2026.2.6',  arch:'Dense',    totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'1,000K',   modal:'文本+Image',   open:'闭源',      pIn:5.00, pOut:25.00, cur:'USD', aaScore:57, aaSpeed:45,  aaLatency:9.80 },
+  { vendor:'Anthropic',name:'Claude Sonnet 4.6',    date:'2026.2.18', arch:'Dense',    totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'1,000K',   modal:'文本+Image',   open:'闭源',      pIn:3.00, pOut:15.00, cur:'USD', aaScore:52, aaSpeed:50,  aaLatency:126.07, note:'AA速度为max推理模式（含长思考）' },
+  { vendor:'Anthropic',name:'Claude Haiku 4.5',     date:'2025.10.15',arch:'Dense',    totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'200K',     modal:'文本+Image',   open:'闭源',      pIn:1.00, pOut:5.00,  cur:'USD', aaScore:31, aaSpeed:92,  aaLatency:0.80 },
+  // ── Google ────────────────────────────────────────────────────────────────
+  { vendor:'Google',   name:'Gemini 3.1 Pro Preview',date:'2026.4',   arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'1,000K',   modal:'文本+Image+Video',open:'闭源',    pIn:2.00, pOut:6.00,  cur:'USD', aaScore:57, aaSpeed:132, aaLatency:29.55, note:'Artificial Analysis 定价数据' },
+  { vendor:'Google',   name:'Gemini 3 Flash',        date:'2026.3',    arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'1,000K',   modal:'文本+Image+Audio',open:'闭源',   pIn:0.50, pOut:3.00,  cur:'USD', aaScore:46, aaSpeed:163, aaLatency:7.28, note:'Artificial Analysis 定价数据（推理模式）' },
+  { vendor:'Google',   name:'Gemini 3.1 Flash-Lite', date:'2026.4',   arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'1,000K',   modal:'文本+Image+Audio',open:'闭源',   pIn:null, pOut:null,  cur:'-',   aaScore:34, aaSpeed:339, aaLatency:5.41, note:'AA blended $0.56/M（3:1 比例）' },
+  { vendor:'Google',   name:'Gemini 2.5 Pro',        date:'2025.3.25', arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'1,000K',   modal:'文本+Image+Video',open:'闭源',   pIn:1.25, pOut:10.00, cur:'USD', aaScore:35, aaSpeed:128, aaLatency:23.75 },
+  { vendor:'Google',   name:'Gemini 2.5 Flash',      date:'2025.4.17', arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'1,000K',   modal:'文本+Image+Audio',open:'闭源',   pIn:0.30, pOut:2.50,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null },
+  { vendor:'Google',   name:'Gemini 2.5 Flash-Lite', date:'2025.6.17', arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'1,000K',   modal:'文本+Image+Audio',open:'闭源',   pIn:0.10, pOut:0.40,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null },
+  // ── xAI ───────────────────────────────────────────────────────────────────
+  { vendor:'xAI',      name:'Grok-4.20',             date:'2026.2.18', arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'256K/2M',  modal:'文本+Image',   open:'闭源',      pIn:2.00, pOut:4.40,  cur:'USD', aaScore:49, aaSpeed:182, aaLatency:13.55, note:'Artificial Analysis 定价数据（O3O9 v2版本）' },
+  { vendor:'xAI',      name:'Grok 4.1 Fast',         date:'2026.3',    arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'2M',       modal:'文本+Image',   open:'闭源',      pIn:null, pOut:null,  cur:'-',   aaScore:39, aaSpeed:152, aaLatency:6.30, note:'AA blended $0.28/M（3:1 比例）' },
+  { vendor:'xAI',      name:'Grok-4-1-fast',         date:'-',         arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'-',        modal:'文本+Image',   open:'闭源',      pIn:0.20, pOut:0.50,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null },
+  // ── ByteDance ─────────────────────────────────────────────────────────────
+  { vendor:'ByteDance',name:'Doubao Seed 2.0 Pro',   date:'-',         arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'128K',     modal:'文本+Image',   open:'闭源',      pIn:3.2,  pOut:16,    cur:'CNY', aaScore:null,aaSpeed:null,aaLatency:null },
+  // ── 其他 ──────────────────────────────────────────────────────────────────
+  { vendor:'其他',     name:'Terminus',               date:'-',         arch:'N/A',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'-',        modal:'文本',         open:'闭源',      pIn:1.64, pOut:2.75,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null, note:'Artificial Analysis 定价数据' },
 ];
 
 const MODEL_PARAMS = {
@@ -1615,7 +1649,8 @@ const MODEL_PARAMS = {
   'GLM-4.7':         { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.60, pOut:2.20, cur:'USD' },
   'GLM-5':           { arch:1, totalB:744, activeB:40, L:78, H:6144, kvMode:0, pIn:1.00, pOut:3.20, cur:'USD' },
   'GLM-5.1':         { arch:1, totalB:744, activeB:40, L:78, H:6144, kvMode:0, pIn:1.40, pOut:4.40, cur:'USD' },
-  'MiniMax V2 Flash':{ arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.10, pOut:0.30, cur:'USD' },
+  'MiMo V2 Flash':   { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.10, pOut:0.30, cur:'USD' },
+  'MiMo V2 Pro':     { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0 },
   'MiniMax M2.1':    { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.30, pOut:1.20, cur:'USD' },
   'MiniMax M2.5':    { arch:1, totalB:230, activeB:10,  L:null, H:null, kvMode:0, pIn:0.30, pOut:1.20, cur:'USD' },
   'MiniMax M2.7':    { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.30, pOut:1.20, cur:'USD' },
@@ -1631,7 +1666,12 @@ const MODEL_PARAMS = {
   'Gemini 2.5 Pro':  { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:1.25, pOut:10.00, cur:'USD' },
   'Gemini 2.5 Flash':{ arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.30, pOut:2.50, cur:'USD' },
   'Grok-4.20':       { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:2.00, pOut:4.40, cur:'USD' },
+  'Grok 4.1 Fast':   { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0 },
   'Qwen3.5 397B A17B':{ arch:1, totalB:397, activeB:17, L:null, H:null, kvMode:0, pIn:0.60, pOut:3.60, cur:'USD' },
+  'Step 3.5 Flash':  { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0 },
+  'gpt-oss-120B':    { arch:0, totalB:120, activeB:120, L:null, H:null, kvMode:0 },
+  'gpt-oss-20B':     { arch:0, totalB:20,  activeB:20,  L:null, H:null, kvMode:0 },
+  'Gemini 3.1 Flash-Lite':{ arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0 },
   'Terminus':        { arch:0, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:1.64, pOut:2.75, cur:'USD' },
 };
 
@@ -2203,6 +2243,9 @@ function renderFilteredModels(data) {
       <td class="num">${num(m.pIn, priceNote||'定价未公开')}</td>
       <td class="num">${num(m.pOut, priceNote||'定价未公开')}</td>
       <td>${m.cur||'-'}</td>
+      <td class="num">${m.aaScore != null ? `<span class="tip-wrap"><b style="color:var(--accent)">${m.aaScore}</b><span class="tip">AA Intelligence Index（满分约60，来源 Artificial Analysis）</span></span>` : `<span class="tip-wrap"><span class="num tip-note">-</span><span class="tip">未收录</span></span>`}</td>
+      <td class="num">${m.aaSpeed != null ? `<span class="tip-wrap">${m.aaSpeed}<span class="tip">API实测单用户输出速度（tokens/s）；系统总TPS = 此值 × 有效并发数</span></span>` : `<span class="tip-wrap"><span class="num tip-note">-</span><span class="tip">未收录</span></span>`}</td>
+      <td class="num">${m.aaLatency != null ? `<span class="tip-wrap">${m.aaLatency}<span class="tip">首 token 延迟（秒）；含服务器排队+推理等待时间</span></span>` : `<span class="tip-wrap"><span class="num tip-note">-</span><span class="tip">未收录</span></span>`}</td>
       <td><button class="tbl-action" onclick="loadModelToCalc('${m.name}')">→ 加载</button></td>
     </tr>`;
   }).join('');
