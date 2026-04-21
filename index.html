@@ -1331,7 +1331,7 @@
         </div>
         <div class="p-row">
           <div class="p-label">MBU 显存带宽利用率 <small style="color:var(--text-3)">(Decode)</small></div>
-          <input class="p-input" id="in-mbu" value="40" oninput="calc()">
+          <input class="p-input" id="in-mbu" value="65" oninput="calc()">
           <div class="p-unit">%</div>
           <div class="p-note">Decode 阶段，带宽受限；H100/H200 实测 50–70%｜生产环境 40–60%｜已修正GQA/批次缩放后，DeepSeek R1 H200 NVL8 benchmark（9,728 t/s）对应 MBU≈67%</div>
         </div>
@@ -1874,7 +1874,7 @@ function resetAll() {
   onGpuChange();
   const defaults = {
     'in-salvage':'0','in-depr':'5','in-capex-mult':'2.8','in-pue':'1.3','in-elec':'0.06','in-net':'10','in-util':'85',
-    'in-isl':'1024','in-osl':'2048','in-batch':'25','in-comm':'0.05','in-mbu':'67','in-mfu':'35',
+    'in-isl':'1024','in-osl':'2048','in-batch':'25','in-comm':'0.05','in-mbu':'65','in-mfu':'35',
   };
   Object.entries(defaults).forEach(([id,val]) => { const el=document.getElementById(id); if(el) el.value=val; });
   document.getElementById('in-prec').value = '1';   // FP8
@@ -2340,7 +2340,7 @@ document.getElementById('in-prec').value  = '1';    // FP8
 document.getElementById('in-isl').value   = '1024'; // ISL = 1K
 document.getElementById('in-osl').value   = '2048'; // OSL = 2K（Mar 2025）
 document.getElementById('in-batch').value = '25';   // 反推有效 batch ≈ 23–27
-document.getElementById('in-mbu').value   = '40';   // 反推 MBU ≈ 40%（decode）
+document.getElementById('in-mbu').value   = '65';   // 反推 MBU ≈ 65%（decode，已修正GQA/批次缩放）
 document.getElementById('in-mfu').value   = '35';   // MFU 典型值（prefill）
 updateTflops();                                      // 同步 TFLOPS = H200 FP8 = 1979
 onKvModeChange();
