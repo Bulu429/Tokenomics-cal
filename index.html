@@ -971,6 +971,8 @@
       <select id="sel-model" onchange="onModelChange()">
         <option value="">—— 手动输入 ——</option>
         <optgroup label="DeepSeek">
+          <option value="DeepSeek V4-Pro">DeepSeek V4-Pro (862B MoE) 🆕</option>
+          <option value="DeepSeek V4-Flash">DeepSeek V4-Flash (158B MoE) 🆕</option>
           <option value="DeepSeek V3.2">DeepSeek V3.2</option>
           <option value="DeepSeek R1">DeepSeek R1</option>
           <option value="DeepSeek R1-Distill-Qwen-32B">R1-Distill-Qwen-32B</option>
@@ -1605,6 +1607,8 @@
 
 const MODEL_DB = [
   // ── DeepSeek ──────────────────────────────────────────────────────────────
+  { vendor:'DeepSeek', name:'DeepSeek V4-Pro',         date:'2026.4.24', arch:'MoE',      totalB:862,  activeB:null,L:61,  H:7168,  kvMode:1, context:'1,000K',   modal:'文本',         open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:null,aaSpeed:null,aaLatency:null, note:'全新deepseek_v4架构；384路由+1共享专家；6个/token；nKV=512(1 KV头×512 head_dim)；哈希路由；FP8内置；2026-04-24发布当天入库' },
+  { vendor:'DeepSeek', name:'DeepSeek V4-Flash',       date:'2026.4.24', arch:'MoE',      totalB:158,  activeB:null,L:43,  H:4096,  kvMode:1, context:'1,000K',   modal:'文本',         open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:null,aaSpeed:null,aaLatency:null, note:'全新deepseek_v4架构；256路由+1共享专家；6个/token；nKV=512；哈希路由；FP8内置；2026-04-24发布当天入库' },
   { vendor:'DeepSeek', name:'DeepSeek V3.2',      date:'2025.9.29', arch:'MoE',      totalB:671,  activeB:37,  L:61,  H:7168,  kvMode:1, context:'128K',     modal:'文本',         open:'开源',      pIn:0.28, pOut:0.42,  cur:'USD', aaScore:42, aaSpeed:32,  aaLatency:1.45 },
   { vendor:'DeepSeek', name:'DeepSeek R1',              date:'2025.1.20', arch:'MoE',   totalB:671,  activeB:37,  L:61,  H:7168,  kvMode:1, context:'128K',   modal:'文本', open:'开源',      pIn:0.28, pOut:0.42,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null },
   { vendor:'DeepSeek', name:'DeepSeek R1-Distill-Qwen-32B', date:'2025.1.20', arch:'Dense', totalB:32,  activeB:32,  L:64,  H:5120,  kvMode:1, context:'128K',   modal:'文本', open:'开源',      pIn:null, pOut:null, cur:'-',   aaScore:null,aaSpeed:null,aaLatency:null, note:'基于Qwen2基座蒸馏自R1；GQA 8组(nKV=1024)' },
@@ -1681,6 +1685,8 @@ const MODEL_PARAMS = {
   // MLA (DeepSeek): nKV = (d_c + n_heads×d_r)/2 = (512 + 128×64)/2 = 4352
   // GQA 8 groups (Llama/Qwen 70B class): nKV = n_kv_heads×head_dim = 8×128 = 1024
   // GQA 8 groups (Llama 405B): nKV = 8×128 = 1024 (vs H=16384, 16× compression)
+  'DeepSeek V4-Pro':  { arch:1, totalB:862,  activeB:null, L:61, H:7168, nKV:512, kvMode:1 },
+  'DeepSeek V4-Flash':{ arch:1, totalB:158,  activeB:null, L:43, H:4096, nKV:512, kvMode:1 },
   'DeepSeek V3.2':   { arch:1, totalB:671, activeB:37, L:61, H:7168, nKV:4352, kvMode:1, pIn:0.28, pOut:0.42, cur:'USD' },
   'DeepSeek R1':                    { arch:1, totalB:671, activeB:37,  L:61,  H:7168,  nKV:4352, kvMode:1, pIn:0.28, pOut:0.42, cur:'USD' },
   'DeepSeek R1-Distill-Qwen-32B':  { arch:0, totalB:32,  activeB:32,  L:64,  H:5120,  nKV:1024, kvMode:1 },
