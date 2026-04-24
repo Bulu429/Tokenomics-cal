@@ -1423,6 +1423,16 @@
           <div class="p-unit">in</div>
         </div>
         <div class="rev-row">
+          <div class="rev-label">Cached Input <small>($/1M, 命中)</small></div>
+          <input class="p-input" id="rv-price-in-cached" value="" placeholder="留空=同input" oninput="calcRevenue()">
+          <div class="p-unit">hit</div>
+        </div>
+        <div class="rev-row">
+          <div class="rev-label">缓存命中率 <small>(长对话/agent)</small></div>
+          <input class="p-input" id="rv-cache-hit" value="0" oninput="calcRevenue()">
+          <div class="p-unit">%</div>
+        </div>
+        <div class="rev-row">
           <div class="rev-label">目标毛利率</div>
           <input class="p-input" id="rv-target-margin" value="50" oninput="calcRevenue()">
           <div class="p-unit">%</div>
@@ -1483,6 +1493,14 @@
       <!-- Breakeven -->
       <div class="rev-detail">
         <div class="rev-detail-title">盈亏平衡分析</div>
+        <div class="rev-dr">
+          <span class="rev-dl">有效 Input 价 <small style="color:var(--text-3)">(hit-blended)</small></span>
+          <span><span class="rev-dv" id="rv-effective-in">—</span><span class="rev-du">$/1M</span></span>
+        </div>
+        <div class="rev-dr">
+          <span class="rev-dl">混合 $/1M out <small style="color:var(--text-3)">(含 input amortized)</small></span>
+          <span><span class="rev-dv" id="rv-blended-perm">—</span><span class="rev-du">$/1M</span></span>
+        </div>
         <div class="rev-dr">
           <span class="rev-dl">当前节点收入上限</span>
           <span><span class="rev-dv" id="rv-capacity">—</span><span class="rev-du">$M/yr</span></span>
@@ -1659,10 +1677,10 @@ const MODEL_PARAMS = {
   // MLA (DeepSeek): nKV = (d_c + n_heads×d_r)/2 = (512 + 128×64)/2 = 4352
   // GQA 8 groups (Llama/Qwen 70B class): nKV = n_kv_heads×head_dim = 8×128 = 1024
   // GQA 8 groups (Llama 405B): nKV = 8×128 = 1024 (vs H=16384, 16× compression)
-  'DeepSeek V4-Pro':  { arch:1, totalB:1600, activeB:49,   L:61, H:7168, nKV:512, kvMode:1, pIn:1.74, pOut:3.48, cur:'USD' },
-  'DeepSeek V4-Flash':{ arch:1, totalB:284,  activeB:13,   L:43, H:4096, nKV:512, kvMode:1, pIn:0.14, pOut:0.28, cur:'USD' },
-  'DeepSeek V3.2':   { arch:1, totalB:671, activeB:37, L:61, H:7168, nKV:4352, kvMode:1, pIn:0.28, pOut:0.42, cur:'USD' },
-  'DeepSeek R1':                    { arch:1, totalB:671, activeB:37,  L:61,  H:7168,  nKV:4352, kvMode:1, pIn:1.74, pOut:3.48, cur:'USD' },
+  'DeepSeek V4-Pro':  { arch:1, totalB:1600, activeB:49,   L:61, H:7168, nKV:512, kvMode:1, pIn:1.74, pInCached:0.145, pOut:3.48, cur:'USD' },
+  'DeepSeek V4-Flash':{ arch:1, totalB:284,  activeB:13,   L:43, H:4096, nKV:512, kvMode:1, pIn:0.14, pInCached:0.028, pOut:0.28, cur:'USD' },
+  'DeepSeek V3.2':   { arch:1, totalB:671, activeB:37, L:61, H:7168, nKV:4352, kvMode:1, pIn:0.28, pInCached:0.028, pOut:0.42, cur:'USD' },
+  'DeepSeek R1':                    { arch:1, totalB:671, activeB:37,  L:61,  H:7168,  nKV:4352, kvMode:1, pIn:1.74, pInCached:0.145, pOut:3.48, cur:'USD' },
   'DeepSeek R1-Distill-Qwen-32B':  { arch:0, totalB:32,  activeB:32,  L:64,  H:5120,  nKV:1024, kvMode:1 },
   'DeepSeek R1-Distill-Llama-70B': { arch:0, totalB:70,  activeB:70,  L:80,  H:8192,  nKV:1024, kvMode:1 },
   'Llama 4 Scout':   { arch:1, totalB:109, activeB:17, L:null, H:null, kvMode:0 },
@@ -1679,7 +1697,7 @@ const MODEL_PARAMS = {
   'Hy3 preview':      { arch:1, totalB:295, activeB:21,  L:80,  H:4096,  nKV:1024, kvMode:1, pIn:1.2, pOut:4.0, cur:'CNY' },
   'GLM-4.7':         { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.60, pOut:2.20, cur:'USD' },
   'GLM-5':           { arch:1, totalB:744, activeB:40, L:78, H:6144, kvMode:0, pIn:1.00, pOut:3.20, cur:'USD' },
-  'GLM-5.1':         { arch:1, totalB:754, activeB:40, L:78, H:6144, nKV:2304, kvMode:1, pIn:1.40, pOut:4.40, cur:'USD' },
+  'GLM-5.1':         { arch:1, totalB:754, activeB:40, L:78, H:6144, nKV:2304, kvMode:1, pIn:1.40, pInCached:0.28, pOut:4.40, cur:'USD' },
   'MiMo V2 Flash':   { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.09, pOut:0.29, cur:'USD' },
   'MiMo V2 Pro':     { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0 },
   'MiniMax M2.1':    { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.30, pOut:1.20, cur:'USD' },
@@ -1687,16 +1705,17 @@ const MODEL_PARAMS = {
   'MiniMax M2.7':    { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.30, pOut:1.20, cur:'USD' },
   'Kimi K2 Thinking':{ arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.60, pOut:2.50, cur:'USD' },
   'Kimi K2.5':       { arch:1, totalB:1000,activeB:32,  L:null, H:null, kvMode:0, pIn:0.44, pOut:2.00, cur:'USD' },
-  'Kimi K2.6':       { arch:1, totalB:1000,activeB:32,  L:61,   H:7168, nKV:2304, kvMode:1, pIn:0.95, pOut:4.00, cur:'USD' },
-  'GPT-5.4':         { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:2.50, pOut:15.00, cur:'USD' },
-  'GPT-5.4 mini':    { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.75, pOut:4.50, cur:'USD' },
-  'Claude Opus 4.7': { arch:0, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:5.00, pOut:25.00, cur:'USD' },
-  'Claude Sonnet 4.6':{ arch:0, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:3.00, pOut:15.00, cur:'USD' },
-  'Claude Haiku 4.5':{ arch:0, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:1.00, pOut:5.00, cur:'USD' },
-  'Gemini 3 Flash':  { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.50, pOut:3.00, cur:'USD' },
-  'Gemini 3.1 Pro Preview':{ arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:2.00, pOut:12.00, cur:'USD' },
-  'Gemini 2.5 Pro':  { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:1.25, pOut:10.00, cur:'USD' },
-  'Gemini 2.5 Flash':{ arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.30, pOut:2.50, cur:'USD' },
+  'Kimi K2.6':       { arch:1, totalB:1000,activeB:32,  L:61,   H:7168, nKV:2304, kvMode:1, pIn:0.95, pInCached:0.15, pOut:4.00, cur:'USD' },
+  'GPT-5.4':         { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:2.50, pInCached:0.25, pOut:15.00, cur:'USD' },
+  'GPT-5.4 mini':    { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.75, pInCached:0.075, pOut:4.50, cur:'USD' },
+  'GPT-5.4 nano':    { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.20, pInCached:0.02,  pOut:1.25, cur:'USD' },
+  'Claude Opus 4.7': { arch:0, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:5.00, pInCached:0.50, pOut:25.00, cur:'USD' },
+  'Claude Sonnet 4.6':{ arch:0, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:3.00, pInCached:0.30, pOut:15.00, cur:'USD' },
+  'Claude Haiku 4.5':{ arch:0, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:1.00, pInCached:0.10, pOut:5.00, cur:'USD' },
+  'Gemini 3 Flash':  { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.50, pInCached:0.125, pOut:3.00, cur:'USD' },
+  'Gemini 3.1 Pro Preview':{ arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:2.00, pInCached:0.50, pOut:12.00, cur:'USD' },
+  'Gemini 2.5 Pro':  { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:1.25, pInCached:0.31, pOut:10.00, cur:'USD' },
+  'Gemini 2.5 Flash':{ arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.30, pInCached:0.075, pOut:2.50, cur:'USD' },
   'Gemma 3 27B':     { arch:0, totalB:27,  activeB:27,  L:62,  H:5376,  nKV:2048, kvMode:1 },
   'Phi-4':           { arch:0, totalB:14,  activeB:14,  L:40,  H:5120,  nKV:1280, kvMode:1 },
   'Mistral Small 3.1 24B': { arch:0, totalB:24, activeB:24, L:40, H:5120, nKV:1024, kvMode:1 },
@@ -1815,6 +1834,20 @@ function onModelChange() {
     const priceUSD = m.cur === 'CNY' ? m.pIn / 7.2 : m.pIn;
     const el = document.getElementById('rv-price-in');
     if (el) { el.value = parseFloat(priceUSD.toFixed(4)); el.classList.add('autofill'); }
+  }
+  // Auto-fill cached input price (blank if model doesn't publish a cache hit price)
+  {
+    const el = document.getElementById('rv-price-in-cached');
+    if (el) {
+      if (m.pInCached !== null && m.pInCached !== undefined) {
+        const priceUSD = m.cur === 'CNY' ? m.pInCached / 7.2 : m.pInCached;
+        el.value = parseFloat(priceUSD.toFixed(4));
+        el.classList.add('autofill');
+      } else {
+        el.value = '';
+        el.classList.remove('autofill');
+      }
+    }
   }
   calc();
 }
@@ -2115,6 +2148,12 @@ function calcRevenue() {
   const revenueM   = parseFloat(document.getElementById('rv-revenue')?.value)       || 0;
   const priceOut   = parseFloat(document.getElementById('rv-price-out')?.value)     || 0;
   const priceIn    = parseFloat(document.getElementById('rv-price-in')?.value)      || 0;
+  const priceInCachedRaw = parseFloat(document.getElementById('rv-price-in-cached')?.value);
+  const priceInCached = isNaN(priceInCachedRaw) ? priceIn : priceInCachedRaw;
+  const hitRateP   = parseFloat(document.getElementById('rv-cache-hit')?.value) || 0;
+  const hitRate    = Math.max(0, Math.min(100, hitRateP)) / 100;
+  // Blended effective input price = (hit × cachedPrice) + (miss × fullPrice)
+  const effectivePriceIn = hitRate * priceInCached + (1 - hitRate) * priceIn;
   const tgtMarginP = parseFloat(document.getElementById('rv-target-margin')?.value) || 0;
 
   const revenue   = revenueM * 1e6;
@@ -2130,9 +2169,10 @@ function calcRevenue() {
 
   // ── 1. 收入拆分：output + input 按 ISL:OSL 比例
   //    API 通常按 output 定价为主；input token 量 ≈ output × (ISL/OSL)
+  //    Input 按"缓存命中率"混合计价：effectivePriceIn = hit×cached + miss×full
   const islOslRatio = _cs.osl > 0 ? _cs.isl / _cs.osl : 1;
-  // 混合收入 per output token = pOut + pIn × (ISL/OSL)
-  const blendedRevPerOutToken = priceOut / 1e6 + (priceIn > 0 ? priceIn / 1e6 * islOslRatio : 0);
+  // 混合收入 per output token = pOut + effectivePriceIn × (ISL/OSL)
+  const blendedRevPerOutToken = priceOut / 1e6 + (effectivePriceIn > 0 ? effectivePriceIn / 1e6 * islOslRatio : 0);
 
   // ── 2. 年 output token 需求（基于 blended 收入）
   const annOutTokensNeeded = blendedRevPerOutToken > 0 ? revenue / blendedRevPerOutToken : 0;
@@ -2203,6 +2243,9 @@ function calcRevenue() {
   setR('rv-capacity',    fmt(capacityRevM, 2));
   setR('rv-breakeven',   isFinite(breakevenRevM) ? fmt(breakevenRevM, 2) : '—');
   setR('rv-tco-per-node','$' + fmtK(_cs.tcoPerNode));
+  // blended 有效 input 价（命中率加权）+ 混合 $/1M output
+  setR('rv-effective-in', priceIn > 0 ? '$'+fmt(effectivePriceIn, 3) : '—');
+  setR('rv-blended-perm', blendedRevPerOutToken > 0 ? '$'+fmt(blendedRevPerOutToken * 1e6, 2) : '—');
 
   // ── CapEx 反推（与左侧倍数联动）
   const price8     = parseFloat(document.getElementById('in-price8')?.value)      || 0;
