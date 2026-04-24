@@ -1052,6 +1052,8 @@
           <option value="TPU v5p Viperfish">TPU v5p Viperfish 95GB</option>
           <option value="TPU v6 Trillium">TPU v6 Trillium 32GB</option>
           <option value="TPU v7 Ironwood">TPU v7 Ironwood 192GB</option>
+          <option value="TPU 8t">TPU 8t 216GB (训练)</option>
+          <option value="TPU 8i">TPU 8i 288GB (推理)</option>
         </optgroup>
         <optgroup label="── AWS Trainium ──">
           <option value="Trainium 1 Trn1">Trainium 1 (Trn1) 32GB</option>
@@ -1703,6 +1705,8 @@ const GPU_DB = [
   { vendor:'Google', name:'TPU v5p Viperfish', level:'Chip', arch:'TPU v5p',      process:'N5',   tdpW:550,  vram:95,     vramType:'HBM2e',  bwTB:2.765, fp16:459,    fp8:459,    fp4:null,   price1:'~$6K',   price8:'~$48K',   cloud:'~$4.2', usecase:'Google Cloud 大模型训练/推理', note:'BF16=FP8=459 TFLOPs；8,960 chips/pod；1Q24量产；单卡价为分析师内部成本估算，Google不直接出售' },
   { vendor:'Google', name:'TPU v6 Trillium',   level:'Chip', arch:'TPU v6',       process:'N5P',  tdpW:390,  vram:32,     vramType:'HBM3',   bwTB:1.64,  fp16:918,    fp8:918,    fp4:null,   price1:'~$4K',   price8:'~$32K',   cloud:'~$2.7', usecase:'Google Cloud 高效训练/推理', note:'BF16=FP8=918 TFLOPs（v5e×4.7）；256 chips/pod；4Q24量产；单卡价为分析师内部成本估算，Google不直接出售' },
   { vendor:'Google', name:'TPU v7 Ironwood',   level:'Chip', arch:'TPU v7',       process:'N3E',  tdpW:980,  vram:192,    vramType:'HBM3e',  bwTB:7.38,  fp16:2307,   fp8:4614,   fp4:null,   price1:'~$15K',  price8:'~$120K',  cloud:'TBD',   usecase:'Google Cloud 下一代超大模型', note:'BF16=2,307 TFLOPs；INT8=FP8=4,614 TOPS；9,216 chips/pod；4Q25预计；单卡价来自X/行业泄露的内部成本估算，Google不直接出售' },
+  { vendor:'Google', name:'TPU 8t',            level:'Chip', arch:'TPU v8t',      process:'TBD',  tdpW:null, vram:216,    vramType:'HBM3e',  bwTB:6.528, fp16:null,   fp8:null,   fp4:12600,  price1:'N/A',    price8:'N/A',     cloud:'TBD',   usecase:'Google Cloud 大规模预训练（专用）', note:'FP4=12.6 PFLOPs；216GB HBM3e；Virgo网络；9,600芯片/Superpod；训练性价比vs Ironwood +2.7×；能效比+2×；2026-04发布；TDP/价格未披露' },
+  { vendor:'Google', name:'TPU 8i',            level:'Chip', arch:'TPU v8i',      process:'TBD',  tdpW:null, vram:288,    vramType:'HBM3e',  bwTB:8.601, fp16:null,   fp8:null,   fp4:10100,  price1:'N/A',    price8:'N/A',     cloud:'TBD',   usecase:'Google Cloud 推理服务/采样（专用）', note:'FP4=10.1 PFLOPs；288GB HBM3e；片上SRAM=384MB（3×上代）；Boardfly拓扑7跳 vs 3D Torus 16跳；推理性价比vs Ironwood +80%；能效比+2×；2026-04发布；TDP/价格未披露' },
   // ── AWS Trainium Chip Level ────────────────────────────────────────────────
   { vendor:'AWS',    name:'Trainium 1 Trn1',   level:'Chip', arch:'NeuronCore-v2', process:'7nm', tdpW:null, vram:32,     vramType:'HBM2e',  bwTB:0.9,   fp16:191,    fp8:191,    fp4:null,   price1:'N/A',    price8:'N/A',     cloud:'~$1.3', usecase:'AWS 自研 AI 训练（第一代）', note:'BF16=FP8=191 TFLOPs；Trn1.32xl 16芯片/$21.5/hr；TDP未公开' },
   { vendor:'AWS',    name:'Trainium 2 Trn2',   level:'Chip', arch:'NeuronCore-v3', process:'3nm', tdpW:null, vram:96,     vramType:'HBM2e',  bwTB:2.7,   fp16:691,    fp8:1299,   fp4:null,   price1:'N/A',    price8:'N/A',     cloud:'~$2.6', usecase:'AWS 自研 AI 训练/推理（第二代）', note:'FP8=1,299 TFLOPs；BF16=691 TFLOPs；NeuronLink3 Scale-up' },
@@ -1723,6 +1727,8 @@ const GPU_PARAMS = {
   'TPU v5p Viperfish': { tdp:0.55, bw:2765,  vram:95,  price8:null,   cloudPrice:4.2,  fp16:459,  fp8:459,  fp4:null  },
   'TPU v6 Trillium':   { tdp:0.39, bw:1640,  vram:32,  price8:null,   cloudPrice:3.5,  fp16:918,  fp8:918,  fp4:null  },
   'TPU v7 Ironwood':   { tdp:0.98, bw:7380,  vram:192, price8:null,   cloudPrice:null, fp16:2307, fp8:4614, fp4:null  },
+  'TPU 8t':            { tdp:null, bw:6528,  vram:216, price8:null,   cloudPrice:null, fp16:null, fp8:null, fp4:12600 },
+  'TPU 8i':            { tdp:null, bw:8601,  vram:288, price8:null,   cloudPrice:null, fp16:null, fp8:null, fp4:10100 },
   // AWS Trainium ─ Chip Level
   'Trainium 1 Trn1':   { tdp:null, bw:900,   vram:32,  price8:null,   cloudPrice:1.3,  fp16:191,  fp8:191,  fp4:null  },
   'Trainium 2 Trn2':   { tdp:null, bw:2700,  vram:96,  price8:null,   cloudPrice:2.6,  fp16:691,  fp8:1299, fp4:null  },
