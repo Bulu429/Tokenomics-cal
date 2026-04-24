@@ -973,16 +973,23 @@
         <optgroup label="DeepSeek">
           <option value="DeepSeek V3.2">DeepSeek V3.2</option>
           <option value="DeepSeek R1">DeepSeek R1</option>
+          <option value="DeepSeek R1-Distill-Qwen-32B">R1-Distill-Qwen-32B</option>
+          <option value="DeepSeek R1-Distill-Llama-70B">R1-Distill-Llama-70B</option>
         </optgroup>
         <optgroup label="Meta">
           <option value="Llama 4 Scout">Llama 4 Scout (109B MoE)</option>
           <option value="Llama 4 Maverick">Llama 4 Maverick (400B MoE)</option>
+          <option value="Llama 3.3 70B">Llama 3.3 70B (Dense)</option>
           <option value="Llama 3.1 405B">Llama 3.1 405B (Dense)</option>
           <option value="Llama 3.1 70B">Llama 3.1 70B (Dense)</option>
         </optgroup>
         <optgroup label="Alibaba">
           <option value="Qwen3.5 397B A17B">Qwen3.5 397B A17B (MoE)</option>
           <option value="Qwen3-235B">Qwen3-235B (MoE)</option>
+          <option value="Qwen3-30B-A3B">Qwen3-30B-A3B (MoE)</option>
+          <option value="Qwen3-32B">Qwen3-32B (Dense)</option>
+          <option value="Qwen3-14B">Qwen3-14B (Dense)</option>
+          <option value="Qwen3-8B">Qwen3-8B (Dense)</option>
           <option value="Qwen2.5 72B">Qwen2.5 72B (Dense)</option>
         </optgroup>
         <optgroup label="Tencent">
@@ -1027,6 +1034,13 @@
           <option value="Gemini 3.1 Flash-Lite">Gemini 3.1 Flash-Lite</option>
           <option value="Gemini 2.5 Pro">Gemini 2.5 Pro</option>
           <option value="Gemini 2.5 Flash">Gemini 2.5 Flash</option>
+          <option value="Gemma 3 27B">Gemma 3 27B (Dense, 开源)</option>
+        </optgroup>
+        <optgroup label="Microsoft">
+          <option value="Phi-4">Phi-4 14B (Dense)</option>
+        </optgroup>
+        <optgroup label="Mistral">
+          <option value="Mistral Small 3.1 24B">Mistral Small 3.1 24B (Dense)</option>
         </optgroup>
         <optgroup label="xAI">
           <option value="Grok-4.20">Grok-4.20</option>
@@ -1592,15 +1606,22 @@
 const MODEL_DB = [
   // ── DeepSeek ──────────────────────────────────────────────────────────────
   { vendor:'DeepSeek', name:'DeepSeek V3.2',      date:'2025.9.29', arch:'MoE',      totalB:671,  activeB:37,  L:61,  H:7168,  kvMode:1, context:'128K',     modal:'文本',         open:'开源',      pIn:0.28, pOut:0.42,  cur:'USD', aaScore:42, aaSpeed:32,  aaLatency:1.45 },
-  { vendor:'DeepSeek', name:'DeepSeek R1',         date:'2025.1.20', arch:'MoE',      totalB:671,  activeB:37,  L:61,  H:7168,  kvMode:1, context:'128K',     modal:'文本',         open:'开源',      pIn:0.28, pOut:0.42,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null },
+  { vendor:'DeepSeek', name:'DeepSeek R1',              date:'2025.1.20', arch:'MoE',   totalB:671,  activeB:37,  L:61,  H:7168,  kvMode:1, context:'128K',   modal:'文本', open:'开源',      pIn:0.28, pOut:0.42,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null },
+  { vendor:'DeepSeek', name:'DeepSeek R1-Distill-Qwen-32B', date:'2025.1.20', arch:'Dense', totalB:32,  activeB:32,  L:64,  H:5120,  kvMode:1, context:'128K',   modal:'文本', open:'开源',      pIn:null, pOut:null, cur:'-',   aaScore:null,aaSpeed:null,aaLatency:null, note:'基于Qwen2基座蒸馏自R1；GQA 8组(nKV=1024)' },
+  { vendor:'DeepSeek', name:'DeepSeek R1-Distill-Llama-70B',date:'2025.1.20', arch:'Dense', totalB:70,  activeB:70,  L:80,  H:8192,  kvMode:1, context:'128K',   modal:'文本', open:'开源',      pIn:null, pOut:null, cur:'-',   aaScore:null,aaSpeed:null,aaLatency:null, note:'基于Llama-3基座蒸馏自R1；GQA 8组(nKV=1024)' },
   // ── Meta ──────────────────────────────────────────────────────────────────
   { vendor:'Meta',     name:'Llama 4 Scout',       date:'2025.4.5',  arch:'MoE(16E)', totalB:109,  activeB:17,  L:null,H:null,  kvMode:0, context:'10,000K',  modal:'文本+Image',   open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:14, aaSpeed:133, aaLatency:0.80 },
   { vendor:'Meta',     name:'Llama 4 Maverick',    date:'2025.4.5',  arch:'MoE(128E)',totalB:400,  activeB:17,  L:null,H:null,  kvMode:0, context:'-',        modal:'文本+Image',   open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:18, aaSpeed:114, aaLatency:1.03 },
   { vendor:'Meta',     name:'Llama 3.1 405B',      date:'2024.7',    arch:'Dense',    totalB:405,  activeB:405, L:126, H:16384, kvMode:1, context:'128K',     modal:'文本',         open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:17, aaSpeed:29,  aaLatency:2.42 },
+  { vendor:'Meta',     name:'Llama 3.3 70B',       date:'2024.12.6', arch:'Dense',    totalB:70,   activeB:70,  L:80,  H:8192,  kvMode:1, context:'128K',     modal:'文本',         open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:null,aaSpeed:null,aaLatency:null, note:'GQA 8组(nKV=1024)；Llama 3.1 70B升级版' },
   { vendor:'Meta',     name:'Llama 3.1 70B',       date:'2024.7',    arch:'Dense',    totalB:70,   activeB:70,  L:80,  H:8192,  kvMode:1, context:'128K',     modal:'文本',         open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:null,aaSpeed:null,aaLatency:null },
   // ── Alibaba ───────────────────────────────────────────────────────────────
   { vendor:'Alibaba',  name:'Qwen3.5 397B A17B',   date:'2026.3',    arch:'MoE',      totalB:397,  activeB:17,  L:null,H:null,  kvMode:0, context:'262K',     modal:'文本',         open:'开源',      pIn:0.60, pOut:3.60,  cur:'USD', aaScore:45, aaSpeed:53,  aaLatency:2.60, note:'Artificial Analysis 定价数据' },
   { vendor:'Alibaba',  name:'Qwen3-235B',           date:'2025.7.25', arch:'MoE',      totalB:235,  activeB:22,  L:null,H:null,  kvMode:0, context:'-',        modal:'文本',         open:'开源',      pIn:2.5,  pOut:10,    cur:'CNY', aaScore:null,aaSpeed:null,aaLatency:null },
+  { vendor:'Alibaba',  name:'Qwen3-30B-A3B',        date:'2025.4.29', arch:'MoE',      totalB:30,   activeB:3,   L:48,  H:2048,  kvMode:1, context:'40K',      modal:'文本',         open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:null,aaSpeed:null,aaLatency:null, note:'128路由+1共享专家；nKV=512(4组GQA)；单GPU可跑' },
+  { vendor:'Alibaba',  name:'Qwen3-32B',             date:'2025.4.29', arch:'Dense',    totalB:32,   activeB:32,  L:64,  H:5120,  kvMode:1, context:'40K',      modal:'文本',         open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:null,aaSpeed:null,aaLatency:null, note:'GQA 8组(nKV=1024)' },
+  { vendor:'Alibaba',  name:'Qwen3-14B',             date:'2025.4.29', arch:'Dense',    totalB:14,   activeB:14,  L:40,  H:5120,  kvMode:1, context:'40K',      modal:'文本',         open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:null,aaSpeed:null,aaLatency:null, note:'GQA 8组(nKV=1024)' },
+  { vendor:'Alibaba',  name:'Qwen3-8B',              date:'2025.4.29', arch:'Dense',    totalB:8,    activeB:8,   L:36,  H:4096,  kvMode:1, context:'40K',      modal:'文本',         open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:null,aaSpeed:null,aaLatency:null, note:'GQA 8组(nKV=1024)' },
   { vendor:'Alibaba',  name:'Qwen2.5 72B',          date:'2024.9',    arch:'Dense',    totalB:72,   activeB:72,  L:80,  H:8192,  kvMode:1, context:'128K',     modal:'文本',         open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:null,aaSpeed:null,aaLatency:null },
   { vendor:'Alibaba',  name:'Qwen-Max',             date:'-',         arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'32K',      modal:'文本',         open:'闭源(API)', pIn:2.4,  pOut:9.6,   cur:'CNY', aaScore:null,aaSpeed:null,aaLatency:null },
   { vendor:'Alibaba',  name:'Qwen-Plus',            date:'-',         arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'128K',     modal:'文本',         open:'闭源(API)', pIn:0.8,  pOut:2.0,   cur:'CNY', aaScore:null,aaSpeed:null,aaLatency:null },
@@ -1640,6 +1661,11 @@ const MODEL_DB = [
   { vendor:'Google',   name:'Gemini 2.5 Pro',        date:'2025.3.25', arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'1,000K',   modal:'文本+Image+Video',open:'闭源',   pIn:1.25, pOut:10.00, cur:'USD', aaScore:35, aaSpeed:128, aaLatency:23.75 },
   { vendor:'Google',   name:'Gemini 2.5 Flash',      date:'2025.4.17', arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'1,000K',   modal:'文本+Image+Audio',open:'闭源',   pIn:0.30, pOut:2.50,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null },
   { vendor:'Google',   name:'Gemini 2.5 Flash-Lite', date:'2025.6.17', arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'1,000K',   modal:'文本+Image+Audio',open:'闭源',   pIn:0.10, pOut:0.40,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null },
+  { vendor:'Google',   name:'Gemma 3 27B',           date:'2025.3.12', arch:'Dense',    totalB:27,   activeB:27,  L:62,  H:5376,  kvMode:1, context:'128K',     modal:'文本+Image',   open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:null,aaSpeed:null,aaLatency:null, note:'GQA 16组(nKV=2048)；交替使用滑窗(1K)与全局注意力层' },
+  // ── Microsoft ─────────────────────────────────────────────────────────────
+  { vendor:'Microsoft',name:'Phi-4',                 date:'2024.12.12',arch:'Dense',    totalB:14,   activeB:14,  L:40,  H:5120,  kvMode:1, context:'16K',      modal:'文本',         open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:null,aaSpeed:null,aaLatency:null, note:'GQA 10组(nKV=1280)；上下文仅16K' },
+  // ── Mistral ───────────────────────────────────────────────────────────────
+  { vendor:'Mistral',  name:'Mistral Small 3.1 24B', date:'2025.3',    arch:'Dense',    totalB:24,   activeB:24,  L:40,  H:5120,  kvMode:1, context:'128K',     modal:'文本+Image',   open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:null,aaSpeed:null,aaLatency:null, note:'GQA 8组(nKV=1024)；支持Function Calling' },
   // ── xAI ───────────────────────────────────────────────────────────────────
   { vendor:'xAI',      name:'Grok-4.20',             date:'2026.2.18', arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'256K/2M',  modal:'文本+Image',   open:'闭源',      pIn:2.00, pOut:4.40,  cur:'USD', aaScore:49, aaSpeed:182, aaLatency:13.55, note:'Artificial Analysis 定价数据（O3O9 v2版本）' },
   { vendor:'xAI',      name:'Grok 4.1 Fast',         date:'2026.3',    arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'2M',       modal:'文本+Image',   open:'闭源',      pIn:null, pOut:null,  cur:'-',   aaScore:39, aaSpeed:152, aaLatency:6.30, note:'AA blended $0.28/M（3:1 比例）' },
@@ -1656,13 +1682,20 @@ const MODEL_PARAMS = {
   // GQA 8 groups (Llama/Qwen 70B class): nKV = n_kv_heads×head_dim = 8×128 = 1024
   // GQA 8 groups (Llama 405B): nKV = 8×128 = 1024 (vs H=16384, 16× compression)
   'DeepSeek V3.2':   { arch:1, totalB:671, activeB:37, L:61, H:7168, nKV:4352, kvMode:1, pIn:0.28, pOut:0.42, cur:'USD' },
-  'DeepSeek R1':     { arch:1, totalB:671, activeB:37, L:61, H:7168, nKV:4352, kvMode:1, pIn:0.28, pOut:0.42, cur:'USD' },
+  'DeepSeek R1':                    { arch:1, totalB:671, activeB:37,  L:61,  H:7168,  nKV:4352, kvMode:1, pIn:0.28, pOut:0.42, cur:'USD' },
+  'DeepSeek R1-Distill-Qwen-32B':  { arch:0, totalB:32,  activeB:32,  L:64,  H:5120,  nKV:1024, kvMode:1 },
+  'DeepSeek R1-Distill-Llama-70B': { arch:0, totalB:70,  activeB:70,  L:80,  H:8192,  nKV:1024, kvMode:1 },
   'Llama 4 Scout':   { arch:1, totalB:109, activeB:17, L:null, H:null, kvMode:0 },
   'Llama 4 Maverick':{ arch:1, totalB:400, activeB:17, L:null, H:null, kvMode:0 },
+  'Llama 3.3 70B':   { arch:0, totalB:70,  activeB:70,  L:80,  H:8192,  nKV:1024, kvMode:1 },
   'Llama 3.1 405B':  { arch:0, totalB:405, activeB:405, L:126, H:16384, nKV:1024, kvMode:1 },
   'Llama 3.1 70B':   { arch:0, totalB:70,  activeB:70,  L:80,  H:8192,  nKV:1024, kvMode:1 },
-  'Qwen3-235B':       { arch:1, totalB:235, activeB:22, L:null, H:null, kvMode:0, pIn:2.5, pOut:10, cur:'CNY' },
-  'Qwen2.5 72B':      { arch:0, totalB:72,  activeB:72,  L:80,  H:8192,  nKV:1024, kvMode:1 },
+  'Qwen3-235B':      { arch:1, totalB:235, activeB:22,  L:null,H:null,  kvMode:0, pIn:2.5, pOut:10, cur:'CNY' },
+  'Qwen3-30B-A3B':   { arch:1, totalB:30,  activeB:3,   L:48,  H:2048,  nKV:512,  kvMode:1 },
+  'Qwen3-32B':       { arch:0, totalB:32,  activeB:32,  L:64,  H:5120,  nKV:1024, kvMode:1 },
+  'Qwen3-14B':       { arch:0, totalB:14,  activeB:14,  L:40,  H:5120,  nKV:1024, kvMode:1 },
+  'Qwen3-8B':        { arch:0, totalB:8,   activeB:8,   L:36,  H:4096,  nKV:1024, kvMode:1 },
+  'Qwen2.5 72B':     { arch:0, totalB:72,  activeB:72,  L:80,  H:8192,  nKV:1024, kvMode:1 },
   'Hy3 preview':      { arch:1, totalB:295, activeB:21,  L:80,  H:4096,  nKV:1024, kvMode:1, pIn:1.2, pOut:4.0, cur:'CNY' },
   'GLM-4.7':         { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.60, pOut:2.20, cur:'USD' },
   'GLM-5':           { arch:1, totalB:744, activeB:40, L:78, H:6144, kvMode:0, pIn:1.00, pOut:3.20, cur:'USD' },
@@ -1683,6 +1716,9 @@ const MODEL_PARAMS = {
   'Gemini 3.1 Pro Preview':{ arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:2.00, pOut:6.00, cur:'USD' },
   'Gemini 2.5 Pro':  { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:1.25, pOut:10.00, cur:'USD' },
   'Gemini 2.5 Flash':{ arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.30, pOut:2.50, cur:'USD' },
+  'Gemma 3 27B':     { arch:0, totalB:27,  activeB:27,  L:62,  H:5376,  nKV:2048, kvMode:1 },
+  'Phi-4':           { arch:0, totalB:14,  activeB:14,  L:40,  H:5120,  nKV:1280, kvMode:1 },
+  'Mistral Small 3.1 24B': { arch:0, totalB:24, activeB:24, L:40, H:5120, nKV:1024, kvMode:1 },
   'Grok-4.20':       { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:2.00, pOut:4.40, cur:'USD' },
   'Grok 4.1 Fast':   { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0 },
   'Qwen3.5 397B A17B':{ arch:1, totalB:397, activeB:17, L:null, H:null, kvMode:0, pIn:0.60, pOut:3.60, cur:'USD' },
