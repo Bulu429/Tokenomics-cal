@@ -1609,7 +1609,7 @@ const MODEL_DB = [
   // ── Zhipu AI ──────────────────────────────────────────────────────────────
   { vendor:'Zhipu AI', name:'GLM-4.7',             date:'2026.3',    arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'-',        modal:'文本+Image',   open:'闭源',      pIn:0.60, pOut:2.20,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null, note:'Artificial Analysis 定价数据' },
   { vendor:'Zhipu AI', name:'GLM-5',               date:'2026.2.12', arch:'MoE',      totalB:744,  activeB:40,  L:78,  H:6144,  kvMode:0, context:'128K',     modal:'文本+Image',   open:'开源',      pIn:1.00, pOut:3.20,  cur:'USD', aaScore:50, aaSpeed:69,  aaLatency:1.78, note:'Artificial Analysis 定价数据' },
-  { vendor:'Zhipu AI', name:'GLM-5.1',             date:'2026.4.7',  arch:'MoE',      totalB:754,  activeB:40,  L:78,  H:6144,  kvMode:0, context:'200K',     modal:'文本+Image',   open:'开源',      pIn:1.40, pOut:4.40,  cur:'USD', aaScore:51, aaSpeed:45,  aaLatency:1.63, note:'MIT开源；glm_moe_dsa架构；MLA(kv_lora_rank=512)；256路由+1共享；8/token；从HF zai-org/GLM-5.1验证' },
+  { vendor:'Zhipu AI', name:'GLM-5.1',             date:'2026.4.7',  arch:'MoE',      totalB:754,  activeB:40,  L:78,  H:6144,  kvMode:1, context:'200K',     modal:'文本+Image',   open:'开源',      pIn:1.40, pOut:4.40,  cur:'USD', aaScore:51, aaSpeed:45,  aaLatency:1.63, note:'MIT开源；glm_moe_dsa架构；MLA(kv_lora_rank=512)；nKV=2304=(512+64×64)/2；256路由+1共享；8/token；从HF zai-org/GLM-5.1验证' },
   // ── Xiaomi ────────────────────────────────────────────────────────────────
   { vendor:'Xiaomi',   name:'MiMo V2 Flash',        date:'2026.2',    arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'256K',     modal:'文本',         open:'闭源',      pIn:0.09, pOut:0.29,  cur:'USD', aaScore:41, aaSpeed:132, aaLatency:2.11, note:'Artificial Analysis 定价数据；MiMo = 小米自研模型系列' },
   { vendor:'Xiaomi',   name:'MiMo V2 Pro',          date:'2026.3',    arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'1,000K',   modal:'文本',         open:'闭源',      pIn:null, pOut:null,  cur:'-',   aaScore:49, aaSpeed:70,  aaLatency:3.26, note:'小米自研模型系列' },
@@ -1620,7 +1620,7 @@ const MODEL_DB = [
   // ── Moonshot AI ───────────────────────────────────────────────────────────
   { vendor:'Moonshot AI',name:'Kimi K2 Thinking',   date:'2026.3',    arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'-',        modal:'文本+Image',   open:'闭源',      pIn:0.60, pOut:2.50,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null, note:'Artificial Analysis 定价数据' },
   { vendor:'Moonshot AI',name:'Kimi K2.5',           date:'2026.4',    arch:'MoE',      totalB:1000, activeB:32,  L:null,H:null,  kvMode:0, context:'256K',     modal:'文本+Image',   open:'闭源',      pIn:0.44, pOut:2.00,  cur:'USD', aaScore:47, aaSpeed:37,  aaLatency:2.82, note:'Artificial Analysis 定价数据' },
-  { vendor:'Moonshot AI',name:'Kimi K2.6',           date:'2026.4.20', arch:'MoE',      totalB:1000, activeB:32,  L:61,  H:7168,  kvMode:0, context:'256K',     modal:'文本+Image',   open:'闭源',      pIn:0.95, pOut:4.00,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null, note:'kimi_k25架构；MLA(kv_lora_rank=512)；384路由+1共享专家；8/token；多模态(1.1T含视觉参数)；从HF moonshotai/Kimi-K2.6验证' },
+  { vendor:'Moonshot AI',name:'Kimi K2.6',           date:'2026.4.20', arch:'MoE',      totalB:1000, activeB:32,  L:61,  H:7168,  kvMode:1, context:'256K',     modal:'文本+Image',   open:'闭源',      pIn:0.95, pOut:4.00,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null, note:'kimi_k25架构；MLA(kv_lora_rank=512)；nKV=2304=(512+64×64)/2；384路由+1共享专家；8/token；多模态(1.1T含视觉参数)；从HF moonshotai/Kimi-K2.6验证' },
   // ── StepFun ───────────────────────────────────────────────────────────────
   { vendor:'StepFun',  name:'Step 3.5 Flash',       date:'2026.3',    arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'256K',     modal:'文本',         open:'闭源',      pIn:null, pOut:null,  cur:'-',   aaScore:38, aaSpeed:173, aaLatency:1.05, note:'AA blended $0.15/M（3:1 比例）' },
   // ── OpenAI ────────────────────────────────────────────────────────────────
@@ -1679,7 +1679,7 @@ const MODEL_PARAMS = {
   'Hy3 preview':      { arch:1, totalB:295, activeB:21,  L:80,  H:4096,  nKV:1024, kvMode:1, pIn:1.2, pOut:4.0, cur:'CNY' },
   'GLM-4.7':         { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.60, pOut:2.20, cur:'USD' },
   'GLM-5':           { arch:1, totalB:744, activeB:40, L:78, H:6144, kvMode:0, pIn:1.00, pOut:3.20, cur:'USD' },
-  'GLM-5.1':         { arch:1, totalB:754, activeB:40, L:78, H:6144, kvMode:0, pIn:1.40, pOut:4.40, cur:'USD' },
+  'GLM-5.1':         { arch:1, totalB:754, activeB:40, L:78, H:6144, nKV:2304, kvMode:1, pIn:1.40, pOut:4.40, cur:'USD' },
   'MiMo V2 Flash':   { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.09, pOut:0.29, cur:'USD' },
   'MiMo V2 Pro':     { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0 },
   'MiniMax M2.1':    { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.30, pOut:1.20, cur:'USD' },
@@ -1687,7 +1687,7 @@ const MODEL_PARAMS = {
   'MiniMax M2.7':    { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.30, pOut:1.20, cur:'USD' },
   'Kimi K2 Thinking':{ arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.60, pOut:2.50, cur:'USD' },
   'Kimi K2.5':       { arch:1, totalB:1000,activeB:32,  L:null, H:null, kvMode:0, pIn:0.44, pOut:2.00, cur:'USD' },
-  'Kimi K2.6':       { arch:1, totalB:1000,activeB:32,  L:61,   H:7168, kvMode:0, pIn:0.95, pOut:4.00, cur:'USD' },
+  'Kimi K2.6':       { arch:1, totalB:1000,activeB:32,  L:61,   H:7168, nKV:2304, kvMode:1, pIn:0.95, pOut:4.00, cur:'USD' },
   'GPT-5.4':         { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:2.50, pOut:15.00, cur:'USD' },
   'GPT-5.4 mini':    { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.75, pOut:4.50, cur:'USD' },
   'Claude Opus 4.7': { arch:0, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:5.00, pOut:25.00, cur:'USD' },
