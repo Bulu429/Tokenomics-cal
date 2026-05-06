@@ -1183,31 +1183,6 @@
         </div>
       </div>
 
-      <!-- $/request 区块 -->
-      <div class="flow-arrow">
-        <div class="flow-arrow-line"></div>
-        <div class="flow-arrow-label">× request time</div>
-      </div>
-
-      <div class="flow-cost-block">
-        <div>
-          <div class="flow-cost-label" style="color:var(--accent)">★ Cost / Request</div>
-          <div class="flow-cost-val" id="fl-cost-req">—</div>
-          <div class="flow-cost-unit">$ per request (ISL+OSL)</div>
-        </div>
-        <div class="flow-cost-secondary">
-          <div class="flow-cost-sec-item">
-            <div class="flow-sec-label">Prefill 占比</div>
-            <div class="flow-sec-val" id="fl-prefill-pct">—</div>
-            <div class="flow-sec-unit">% of req time</div>
-          </div>
-          <div class="flow-cost-sec-item">
-            <div class="flow-sec-label">Max req/hr</div>
-            <div class="flow-sec-val" id="fl-req-per-hr">—</div>
-            <div class="flow-sec-unit">requests / hour</div>
-          </div>
-        </div>
-      </div>
 
     </div>
   </div>
@@ -2181,27 +2156,12 @@ function calc() {
     ? (isl * costPerMIn + osl * costPerMOut) / (isl + osl) : Infinity;
 
   // ── FLOWCHART 更新
-  // ── $/request（基于 ISL/OSL 实际请求时间）
-  // t_prefill = ISL tokens / prefill TPS（节点级）
-  // t_decode  = OSL tokens / decode TPS（节点级）
-  // cost/req  = (TCO / annSeconds) × (t_prefill + t_decode)
-  const tPrefillSec  = (tpsPrefill > 0 && isl > 0) ? isl / tpsPrefill : 0;
-  const tDecodeSec   = (nodeTPS > 0 && osl > 0)    ? osl / nodeTPS    : 0;
-  const tReqSec      = tPrefillSec + tDecodeSec;
-  const tcoPerSec    = annSeconds > 0 ? tco / annSeconds : 0;
-  const costPerReq   = (tcoPerSec > 0 && tReqSec > 0) ? tcoPerSec * tReqSec : Infinity;
-  const prefillPct   = tReqSec > 0 ? (tPrefillSec / tReqSec * 100) : 0;
-  const reqPerHour   = tReqSec > 0 ? Math.floor(3600 / tReqSec) : 0;
-
   set('fl-tco', '$'+fmtK(tco));
   set('fl-tps', fmtK(nodeTPS));
   set('fl-prefill-tps', tpsPrefill > 0 ? fmtK(tpsPrefill) : '—');
   set('fl-cost',       isFinite(costPerMOut)   ? fmt(costPerMOut, 3)   : '—');
   set('fl-cost-in',    isFinite(costPerMIn)    ? fmt(costPerMIn, 3)    : '—');
   set('fl-cost-blend', isFinite(costPerMBlend) ? fmt(costPerMBlend, 3) : '—');
-  set('fl-cost-req',   isFinite(costPerReq)    ? '$'+fmt(costPerReq, 4) : '—');
-  set('fl-prefill-pct',tReqSec > 0 ? fmt(prefillPct, 1)+'%' : '—');
-  set('fl-req-per-hr', reqPerHour > 0 ? fmtK(reqPerHour) : '—');
   document.getElementById('fl-tco-sub').textContent = isRental
     ? '租赁费用（含电力与运维）'
     : '硬件折旧 + 电力 + 运维';
@@ -2405,8 +2365,7 @@ function resetOutputs() {
    'r-effp','r-dw','r-dkv','r-dcomm','r-dt',
    'r-th-tps','r-eff-tps','r-node-tps','r-prefill-tps',
    'r-c-hw','r-c-pw','r-c-op','r-tco-total','r-ann-tokens','r-ann-input',
-   'fl-tco','fl-tps','fl-prefill-tps','fl-cost','fl-cost-in','fl-cost-blend',
-   'fl-cost-req','fl-prefill-pct','fl-req-per-hr'
+   'fl-tco','fl-tps','fl-prefill-tps','fl-cost','fl-cost-in','fl-cost-blend'
   ].forEach(id => set(id,'—'));
   const batchNote = document.getElementById('r-batchmaxnote');
   if (batchNote) batchNote.textContent = '';
