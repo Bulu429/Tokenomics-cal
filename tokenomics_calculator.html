@@ -279,6 +279,47 @@
     }
     .btn-reset:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-2); }
 
+    .preset-bar {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: -2px 0 14px;
+    }
+    .preset-btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      text-align: left;
+      padding: 10px 12px;
+      min-height: 72px;
+      font-family: var(--sans);
+      transition: border-color .12s, background .12s, box-shadow .12s;
+    }
+    .preset-btn:hover {
+      border-color: var(--accent-3);
+      background: #F9FBFF;
+    }
+    .preset-btn.active {
+      border-color: var(--accent);
+      background: var(--accent-2);
+      box-shadow: inset 0 0 0 1px var(--accent-3);
+    }
+    .preset-title {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .preset-meta {
+      display: block;
+      font-family: var(--mono);
+      font-size: 9.5px;
+      color: var(--text-2);
+      line-height: 1.45;
+    }
+
     /* ================================================================
        LEGEND
     ================================================================ */
@@ -960,7 +1001,7 @@
           <option value="Llama 3.1 70B">Llama 3.1 70B (Dense)</option>
         </optgroup>
         <optgroup label="Alibaba">
-          <option value="Qwen3.5 397B A17B">Qwen3.5 397B A17B (MoE)</option>
+          <option value="Qwen3.5 397B">Qwen3.5 397B (MoE)</option>
           <option value="Qwen3-235B">Qwen3-235B (MoE)</option>
           <option value="Qwen3-30B-A3B">Qwen3-30B-A3B (MoE)</option>
           <option value="Qwen3-32B">Qwen3-32B (Dense)</option>
@@ -974,7 +1015,7 @@
         <optgroup label="Zhipu AI">
           <option value="GLM-4.7">GLM-4.7</option>
           <option value="GLM-5">GLM-5 (744B MoE)</option>
-          <option value="GLM-5.1">GLM-5.1 (754B MoE)</option>
+          <option value="GLM-5.1">GLM-5.1 (744B MoE)</option>
         </optgroup>
         <optgroup label="Xiaomi">
           <option value="MiMo V2 Flash">MiMo V2 Flash</option>
@@ -1064,6 +1105,21 @@
     <span class="legend-item"><span class="legend-box leg-auto"></span>自动填充（来自数据库）</span>
     <span class="legend-item"><span class="legend-box leg-calc"></span>自动计算（只读）</span>
     <span class="legend-item"><span class="legend-box leg-manual"></span>手动输入</span>
+  </div>
+
+  <div class="preset-bar anim-grid">
+    <button class="preset-btn active" id="preset-research" onclick="applyPreset('research')">
+      <span class="preset-title">投研基准</span>
+      <span class="preset-meta">Batch 25 / MBU 40% / Util 75%<br>日常横向比较，偏中性</span>
+    </button>
+    <button class="preset-btn" id="preset-benchmark" onclick="applyPreset('benchmark')">
+      <span class="preset-title">Benchmark / Max Throughput</span>
+      <span class="preset-meta">Batch 128 / MBU 65% / Util 85%<br>对标公开吞吐，不代表线上 SLA</span>
+    </button>
+    <button class="preset-btn" id="preset-serving" onclick="applyPreset('serving')">
+      <span class="preset-title">线上服务 / SLA</span>
+      <span class="preset-meta">Batch 16 / MBU 32% / Util 65%<br>延迟约束成本，更保守</span>
+    </button>
   </div>
 
   <div class="tab-split">
@@ -1599,8 +1655,8 @@
 
 const MODEL_DB = [
   // ── DeepSeek ──────────────────────────────────────────────────────────────
-  { vendor:'DeepSeek', name:'DeepSeek V4-Pro',         date:'2026.4.24', arch:'MoE',      totalB:1600, activeB:49,  L:61,  H:7168,  kvMode:1, context:'1,000K',   modal:'文本',         open:'开源',      pIn:1.74, pOut:3.48,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null, note:'全新deepseek_v4架构；384路由+1共享专家；6个/token；nKV=512；33T预训练数据；缓存命中$0.145/M in；哈希路由；FP8内置' },
-  { vendor:'DeepSeek', name:'DeepSeek V4-Flash',       date:'2026.4.24', arch:'MoE',      totalB:284,  activeB:13,  L:43,  H:4096,  kvMode:1, context:'1,000K',   modal:'文本',         open:'开源',      pIn:0.14, pOut:0.28,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null, note:'全新deepseek_v4架构；256路由+1共享专家；6个/token；nKV=512；32T预训练数据；缓存命中$0.028/M in；替代deepseek-chat端点' },
+  { vendor:'DeepSeek', name:'DeepSeek V4-Pro',         date:'2026.4.24', arch:'MoE',      totalB:1600, activeB:49,  L:61,  H:7168,  kvMode:1, context:'1,000K',   modal:'文本',         open:'开源',      pIn:1.74, pOut:3.48,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null, note:'全新deepseek_v4架构；384路由+1共享专家；8个/token；MLA(d_c=512,d_r=64)；nKV≈2304；33T预训练数据；缓存命中$0.145/M in；FP8+FP4混合' },
+  { vendor:'DeepSeek', name:'DeepSeek V4-Flash',       date:'2026.4.24', arch:'MoE',      totalB:284,  activeB:13,  L:43,  H:4096,  kvMode:1, context:'1,000K',   modal:'文本',         open:'开源',      pIn:0.14, pOut:0.28,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null, note:'全新deepseek_v4架构；256路由+1共享专家；8个/token；MLA(d_c=512,d_r=64)；nKV≈2304；32T预训练数据；缓存命中$0.028/M in；替代deepseek-chat端点' },
   { vendor:'DeepSeek', name:'DeepSeek V3.2',      date:'2025.9.29', arch:'MoE',      totalB:671,  activeB:37,  L:61,  H:7168,  kvMode:1, context:'128K',     modal:'文本',         open:'开源',      pIn:0.28, pOut:0.42,  cur:'USD', aaScore:42, aaSpeed:32,  aaLatency:1.45 },
   { vendor:'DeepSeek', name:'DeepSeek R1',              date:'2025.1.20', arch:'MoE',   totalB:671,  activeB:37,  L:61,  H:7168,  kvMode:1, context:'128K',   modal:'文本', open:'开源',      pIn:1.74, pOut:3.48,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null, note:'deepseek-reasoner端点已迁移至V4-Pro思考模式；定价同V4-Pro' },
   { vendor:'DeepSeek', name:'DeepSeek R1-Distill-Qwen-32B', date:'2025.1.20', arch:'Dense', totalB:32,  activeB:32,  L:64,  H:5120,  kvMode:1, context:'128K',   modal:'文本', open:'开源',      pIn:null, pOut:null, cur:'-',   aaScore:null,aaSpeed:null,aaLatency:null, note:'基于Qwen2基座蒸馏自R1；GQA 8组(nKV=1024)' },
@@ -1612,7 +1668,7 @@ const MODEL_DB = [
   { vendor:'Meta',     name:'Llama 3.3 70B',       date:'2024.12.6', arch:'Dense',    totalB:70,   activeB:70,  L:80,  H:8192,  kvMode:1, context:'128K',     modal:'文本',         open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:null,aaSpeed:null,aaLatency:null, note:'GQA 8组(nKV=1024)；Llama 3.1 70B升级版' },
   { vendor:'Meta',     name:'Llama 3.1 70B',       date:'2024.7',    arch:'Dense',    totalB:70,   activeB:70,  L:80,  H:8192,  kvMode:1, context:'128K',     modal:'文本',         open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:null,aaSpeed:null,aaLatency:null },
   // ── Alibaba ───────────────────────────────────────────────────────────────
-  { vendor:'Alibaba',  name:'Qwen3.5 397B A17B',   date:'2026.3',    arch:'MoE',      totalB:397,  activeB:17,  L:null,H:null,  kvMode:0, context:'262K',     modal:'文本',         open:'开源',      pIn:0.60, pOut:3.60,  cur:'USD', aaScore:45, aaSpeed:53,  aaLatency:2.60, note:'Artificial Analysis 定价数据' },
+  { vendor:'Alibaba',  name:'Qwen3.5 397B',         date:'2026.3',    arch:'MoE',      totalB:397,  activeB:17,  L:null,H:null,  kvMode:0, context:'262K',     modal:'文本',         open:'开源',      pIn:0.60, pOut:3.60,  cur:'USD', aaScore:45, aaSpeed:53,  aaLatency:2.60, note:'官方型号名Qwen3.5-397B-A17B（17B激活/397B总参）；AA定价；GQA架构，nKV=2' },
   { vendor:'Alibaba',  name:'Qwen3-235B',           date:'2025.7.25', arch:'MoE',      totalB:235,  activeB:22,  L:null,H:null,  kvMode:0, context:'-',        modal:'文本',         open:'开源',      pIn:2.0,  pOut:8.0,   cur:'CNY', aaScore:null,aaSpeed:null,aaLatency:null },
   { vendor:'Alibaba',  name:'Qwen3-30B-A3B',        date:'2025.4.29', arch:'MoE',      totalB:30,   activeB:3,   L:48,  H:2048,  kvMode:1, context:'40K',      modal:'文本',         open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:null,aaSpeed:null,aaLatency:null, note:'128路由+1共享专家；nKV=512(4组GQA)；单GPU可跑' },
   { vendor:'Alibaba',  name:'Qwen3-32B',             date:'2025.4.29', arch:'Dense',    totalB:32,   activeB:32,  L:64,  H:5120,  kvMode:1, context:'40K',      modal:'文本',         open:'开源',      pIn:null, pOut:null,  cur:'-',   aaScore:null,aaSpeed:null,aaLatency:null, note:'GQA 8组(nKV=1024)' },
@@ -1627,7 +1683,7 @@ const MODEL_DB = [
   // ── Zhipu AI ──────────────────────────────────────────────────────────────
   { vendor:'Zhipu AI', name:'GLM-4.7',             date:'2026.3',    arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'-',        modal:'文本+Image',   open:'闭源',      pIn:0.60, pOut:2.20,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null, note:'Artificial Analysis 定价数据' },
   { vendor:'Zhipu AI', name:'GLM-5',               date:'2026.2.12', arch:'MoE',      totalB:744,  activeB:40,  L:78,  H:6144,  kvMode:0, context:'128K',     modal:'文本+Image',   open:'开源',      pIn:1.00, pOut:3.20,  cur:'USD', aaScore:50, aaSpeed:69,  aaLatency:1.78, note:'Artificial Analysis 定价数据' },
-  { vendor:'Zhipu AI', name:'GLM-5.1',             date:'2026.4.7',  arch:'MoE',      totalB:754,  activeB:40,  L:78,  H:6144,  kvMode:1, context:'200K',     modal:'文本+Image',   open:'开源',      pIn:1.40, pOut:4.40,  cur:'USD', aaScore:51, aaSpeed:45,  aaLatency:1.63, note:'MIT开源；glm_moe_dsa架构；MLA(kv_lora_rank=512)；nKV=2304=(512+64×64)/2；256路由+1共享；8/token；从HF zai-org/GLM-5.1验证' },
+  { vendor:'Zhipu AI', name:'GLM-5.1',             date:'2026.4.7',  arch:'MoE',      totalB:744,  activeB:40,  L:78,  H:6144,  kvMode:1, context:'200K',     modal:'文本+Image',   open:'开源',      pIn:1.40, pOut:4.40,  cur:'USD', aaScore:51, aaSpeed:45,  aaLatency:1.63, note:'MIT开源；glm_moe_dsa架构；MLA(kv_lora_rank=512)；nKV=2304=(512+64×64)/2；256路由+1共享；8/token；从HF/ModelScope验证总参744B' },
   // ── Xiaomi ────────────────────────────────────────────────────────────────
   { vendor:'Xiaomi',   name:'MiMo V2 Flash',        date:'2026.2',    arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'256K',     modal:'文本',         open:'闭源',      pIn:0.09, pOut:0.29,  cur:'USD', aaScore:41, aaSpeed:132, aaLatency:2.11, note:'Artificial Analysis 定价数据；MiMo = 小米自研模型系列' },
   { vendor:'Xiaomi',   name:'MiMo V2 Pro',          date:'2026.3',    arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'1,000K',   modal:'文本',         open:'闭源',      pIn:null, pOut:null,  cur:'-',   aaScore:49, aaSpeed:70,  aaLatency:3.26, note:'小米自研模型系列' },
@@ -1637,7 +1693,7 @@ const MODEL_DB = [
   { vendor:'MiniMax',  name:'MiniMax M2.7',         date:'2026.3',    arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'205K',     modal:'文本',         open:'闭源',      pIn:0.30, pOut:1.20,  cur:'USD', aaScore:50, aaSpeed:48,  aaLatency:2.10, note:'Artificial Analysis 定价数据' },
   // ── Moonshot AI ───────────────────────────────────────────────────────────
   { vendor:'Moonshot AI',name:'Kimi K2 Thinking',   date:'2026.3',    arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'-',        modal:'文本+Image',   open:'闭源',      pIn:0.60, pOut:2.50,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null, note:'Artificial Analysis 定价数据' },
-  { vendor:'Moonshot AI',name:'Kimi K2.5',           date:'2026.4',    arch:'MoE',      totalB:1000, activeB:32,  L:null,H:null,  kvMode:0, context:'256K',     modal:'文本+Image',   open:'闭源',      pIn:0.44, pOut:2.00,  cur:'USD', aaScore:47, aaSpeed:37,  aaLatency:2.82, note:'Artificial Analysis 定价数据' },
+  { vendor:'Moonshot AI',name:'Kimi K2.5',           date:'2026.4',    arch:'MoE',      totalB:1000, activeB:32,  L:61,  H:7168,  kvMode:1, context:'256K',     modal:'文本+Image',   open:'闭源',      pIn:0.44, pOut:2.00,  cur:'USD', aaScore:47, aaSpeed:37,  aaLatency:2.82, note:'K2.5与K2.6共享kimi_k25基座架构；MLA(kv_lora_rank=512)；nKV≈2304；384路由+1共享专家；8/token；AA定价' },
   { vendor:'Moonshot AI',name:'Kimi K2.6',           date:'2026.4.20', arch:'MoE',      totalB:1000, activeB:32,  L:61,  H:7168,  kvMode:1, context:'256K',     modal:'文本+Image',   open:'闭源',      pIn:0.95, pOut:4.00,  cur:'USD', aaScore:null,aaSpeed:null,aaLatency:null, note:'kimi_k25架构；MLA(kv_lora_rank=512)；nKV=2304=(512+64×64)/2；384路由+1共享专家；8/token；多模态(1.1T含视觉参数)；从HF moonshotai/Kimi-K2.6验证' },
   // ── StepFun ───────────────────────────────────────────────────────────────
   { vendor:'StepFun',  name:'Step 3.5 Flash',       date:'2026.3',    arch:'MoE',      totalB:null, activeB:null,L:null,H:null,  kvMode:0, context:'256K',     modal:'文本',         open:'闭源',      pIn:null, pOut:null,  cur:'-',   aaScore:38, aaSpeed:173, aaLatency:1.05, note:'AA blended $0.15/M（3:1 比例）' },
@@ -1677,8 +1733,8 @@ const MODEL_PARAMS = {
   // MLA (DeepSeek): nKV = (d_c + n_heads×d_r)/2 = (512 + 128×64)/2 = 4352
   // GQA 8 groups (Llama/Qwen 70B class): nKV = n_kv_heads×head_dim = 8×128 = 1024
   // GQA 8 groups (Llama 405B): nKV = 8×128 = 1024 (vs H=16384, 16× compression)
-  'DeepSeek V4-Pro':  { arch:1, totalB:1600, activeB:49,   L:61, H:7168, nKV:512, kvMode:1, pIn:1.74, pInCached:0.145, pOut:3.48, cur:'USD' },
-  'DeepSeek V4-Flash':{ arch:1, totalB:284,  activeB:13,   L:43, H:4096, nKV:512, kvMode:1, pIn:0.14, pInCached:0.028, pOut:0.28, cur:'USD' },
+  'DeepSeek V4-Pro':  { arch:1, totalB:1600, activeB:49,   L:61, H:7168, nKV:2304, kvMode:1, pIn:1.74, pInCached:0.145, pOut:3.48, cur:'USD' },
+  'DeepSeek V4-Flash':{ arch:1, totalB:284,  activeB:13,   L:43, H:4096, nKV:2304, kvMode:1, pIn:0.14, pInCached:0.028, pOut:0.28, cur:'USD' },
   'DeepSeek V3.2':   { arch:1, totalB:671, activeB:37, L:61, H:7168, nKV:4352, kvMode:1, pIn:0.28, pInCached:0.028, pOut:0.42, cur:'USD' },
   'DeepSeek R1':                    { arch:1, totalB:671, activeB:37,  L:61,  H:7168,  nKV:4352, kvMode:1, pIn:1.74, pInCached:0.145, pOut:3.48, cur:'USD' },
   'DeepSeek R1-Distill-Qwen-32B':  { arch:0, totalB:32,  activeB:32,  L:64,  H:5120,  nKV:1024, kvMode:1 },
@@ -1697,14 +1753,14 @@ const MODEL_PARAMS = {
   'Hy3 preview':      { arch:1, totalB:295, activeB:21,  L:80,  H:4096,  nKV:1024, kvMode:1, pIn:1.2, pOut:4.0, cur:'CNY' },
   'GLM-4.7':         { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.60, pOut:2.20, cur:'USD' },
   'GLM-5':           { arch:1, totalB:744, activeB:40, L:78, H:6144, kvMode:0, pIn:1.00, pOut:3.20, cur:'USD' },
-  'GLM-5.1':         { arch:1, totalB:754, activeB:40, L:78, H:6144, nKV:2304, kvMode:1, pIn:1.40, pInCached:0.28, pOut:4.40, cur:'USD' },
+  'GLM-5.1':         { arch:1, totalB:744, activeB:40, L:78, H:6144, nKV:2304, kvMode:1, pIn:1.40, pInCached:0.28, pOut:4.40, cur:'USD' },
   'MiMo V2 Flash':   { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.09, pOut:0.29, cur:'USD' },
   'MiMo V2 Pro':     { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0 },
   'MiniMax M2.1':    { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.30, pOut:1.20, cur:'USD' },
   'MiniMax M2.5':    { arch:1, totalB:230, activeB:10,  L:null, H:null, kvMode:0, pIn:0.30, pOut:1.20, cur:'USD' },
   'MiniMax M2.7':    { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.30, pOut:1.20, cur:'USD' },
   'Kimi K2 Thinking':{ arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.60, pOut:2.50, cur:'USD' },
-  'Kimi K2.5':       { arch:1, totalB:1000,activeB:32,  L:null, H:null, kvMode:0, pIn:0.44, pOut:2.00, cur:'USD' },
+  'Kimi K2.5':       { arch:1, totalB:1000,activeB:32,  L:61,   H:7168, nKV:2304, kvMode:1, pIn:0.44, pOut:2.00, cur:'USD' },
   'Kimi K2.6':       { arch:1, totalB:1000,activeB:32,  L:61,   H:7168, nKV:2304, kvMode:1, pIn:0.95, pInCached:0.15, pOut:4.00, cur:'USD' },
   'GPT-5.4':         { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:2.50, pInCached:0.25, pOut:15.00, cur:'USD' },
   'GPT-5.4 mini':    { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.75, pInCached:0.075, pOut:4.50, cur:'USD' },
@@ -1721,7 +1777,7 @@ const MODEL_PARAMS = {
   'Mistral Small 3.1 24B': { arch:0, totalB:24, activeB:24, L:40, H:5120, nKV:1024, kvMode:1 },
   'Grok-4.20':       { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:2.00, pOut:4.40, cur:'USD' },
   'Grok 4.1 Fast':   { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0, pIn:0.20, pOut:0.50, cur:'USD' },
-  'Qwen3.5 397B A17B':{ arch:1, totalB:397, activeB:17, L:null, H:null, kvMode:0, pIn:0.60, pOut:3.60, cur:'USD' },
+  'Qwen3.5 397B':    { arch:1, totalB:397, activeB:17, L:null, H:null, kvMode:0, pIn:0.60, pOut:3.60, cur:'USD' },
   'Step 3.5 Flash':  { arch:1, totalB:null, activeB:null, L:null, H:null, kvMode:0 },
   'gpt-oss-120B':    { arch:0, totalB:120, activeB:120, L:null, H:null, kvMode:0 },
   'gpt-oss-20B':     { arch:0, totalB:20,  activeB:20,  L:null, H:null, kvMode:0 },
@@ -1732,8 +1788,8 @@ const MODEL_PARAMS = {
 const GPU_DB = [
   // ── NVIDIA Chip Level ──────────────────────────────────────────────────────
   { vendor:'NVIDIA', name:'A100 80GB SXM', level:'Chip', arch:'Ampere',           process:'7nm',  tdpW:400,  vram:80,     vramType:'HBM2e',  bwTB:2.0,   fp16:312,    fp8:null,   fp4:null,   price1:'~$15K',  price8:'~$120K',  cloud:'$2.0',  usecase:'训练/推理（上一代）',       note:'正逐步被 H100 替代；A100官方规格未列FP8' },
-  { vendor:'NVIDIA', name:'H100 SXM',      level:'Chip', arch:'Hopper',           process:'4NP',  tdpW:700,  vram:80,     vramType:'HBM3',   bwTB:3.35,  fp16:990,    fp8:3958,   fp4:null,   price1:'~$20K',  price8:'~$160K',  cloud:'$2.6',  usecase:'训练/推理（当前主流）',     note:'DGX H100标配' },
-  { vendor:'NVIDIA', name:'H200 SXM',      level:'Chip', arch:'Hopper',           process:'4NP',  tdpW:700,  vram:141,    vramType:'HBM3e',  bwTB:4.8,   fp16:990,    fp8:3958,   fp4:null,   price1:'~$30K',  price8:'~$240K',  cloud:'$3.8',  usecase:'大模型推理（大显存）',     note:'H100升级版，显存+带宽大幅提升' },
+  { vendor:'NVIDIA', name:'H100 SXM',      level:'Chip', arch:'Hopper',           process:'4NP',  tdpW:700,  vram:80,     vramType:'HBM3',   bwTB:3.35,  fp16:990,    fp8:1979,   fp4:null,   price1:'~$20K',  price8:'~$160K',  cloud:'$2.6',  usecase:'训练/推理（当前主流）',     note:'DGX H100标配；FP8采用benchmark sustained口径' },
+  { vendor:'NVIDIA', name:'H200 SXM',      level:'Chip', arch:'Hopper',           process:'4NP',  tdpW:700,  vram:141,    vramType:'HBM3e',  bwTB:4.8,   fp16:990,    fp8:1979,   fp4:null,   price1:'~$30K',  price8:'~$240K',  cloud:'$3.8',  usecase:'大模型推理（大显存）',     note:'H100升级版，显存+带宽大幅提升；FP8采用benchmark sustained口径' },
   { vendor:'NVIDIA', name:'H20',           level:'Chip', arch:'Hopper (CN)',      process:'4NP',  tdpW:400,  vram:96,     vramType:'HBM3',   bwTB:4.0,   fp16:148,    fp8:296,    fp4:null,   price1:'~$10K',  price8:'~$80K',   cloud:'$1.4',  usecase:'中国市场推理',             note:'出口管制版；计算受限但带宽高' },
   { vendor:'NVIDIA', name:'B100',          level:'Chip', arch:'Blackwell',        process:'4NP',  tdpW:700,  vram:192,    vramType:'HBM3e',  bwTB:8.0,   fp16:3500,   fp8:7000,   fp4:14000,  price1:'~$25K',  price8:'~$200K',  cloud:'$4.0',  usecase:'Training & Inference',     note:'Blackwell入门级；TDP与B200 Chip相同' },
   { vendor:'NVIDIA', name:'B200 SXM',      level:'Chip', arch:'Blackwell',        process:'4NP',  tdpW:700,  vram:192,    vramType:'HBM3e',  bwTB:8.0,   fp16:2500,   fp8:5000,   fp4:10000,  price1:'~$40K',  price8:'~$320K',  cloud:'$6.0',  usecase:'Training & Inference',     note:'Chip TDP=700W；GB200(+Grace CPU) TDP=1,200W；FP4=10 PFLOPs' },
@@ -1758,8 +1814,8 @@ const GPU_DB = [
 const GPU_PARAMS = {
   // NVIDIA ─ Chip Level               tdp   bw     vram  price8   cloud   fp16   fp8    fp4
   'A100 80GB SXM':     { tdp:0.4,  bw:2000,  vram:80,  price8:120000, cloudPrice:2.0,  fp16:312,  fp8:null, fp4:null  },
-  'H100 SXM':          { tdp:0.7,  bw:3350,  vram:80,  price8:160000, cloudPrice:2.6,  fp16:990,  fp8:3958, fp4:null  },
-  'H200 SXM':          { tdp:0.7,  bw:4800,  vram:141, price8:240000, cloudPrice:3.8,  fp16:990,  fp8:3958, fp4:null  },
+  'H100 SXM':          { tdp:0.7,  bw:3350,  vram:80,  price8:160000, cloudPrice:2.6,  fp16:990,  fp8:1979, fp4:null  },
+  'H200 SXM':          { tdp:0.7,  bw:4800,  vram:141, price8:240000, cloudPrice:3.8,  fp16:990,  fp8:1979, fp4:null  },
   'H20':               { tdp:0.4,  bw:4000,  vram:96,  price8:80000,  cloudPrice:1.4,  fp16:148,  fp8:296,  fp4:null  },
   'B100':              { tdp:0.7,  bw:8000,  vram:192, price8:200000, cloudPrice:4.0,  fp16:3500, fp8:7000, fp4:14000 },
   'B200 SXM':          { tdp:0.7,  bw:8000,  vram:192, price8:320000, cloudPrice:6.0,  fp16:2500, fp8:5000, fp4:10000 },
@@ -1927,6 +1983,36 @@ function onKvModeChange() {
   calc();
 }
 
+const PRESETS = {
+  research: {
+    'in-isl':'1024', 'in-osl':'2048', 'in-batch':'25', 'in-comm':'0.05',
+    'in-mbu':'40', 'in-mfu':'35', 'in-util':'75',
+    'in-capex-mult':'2.8', 'in-pue':'1.3', 'in-elec':'0.06', 'in-net':'10',
+  },
+  benchmark: {
+    'in-isl':'1024', 'in-osl':'2048', 'in-batch':'128', 'in-comm':'0.05',
+    'in-mbu':'65', 'in-mfu':'40', 'in-util':'85',
+    'in-capex-mult':'2.8', 'in-pue':'1.3', 'in-elec':'0.06', 'in-net':'10',
+  },
+  serving: {
+    'in-isl':'1024', 'in-osl':'2048', 'in-batch':'16', 'in-comm':'0.08',
+    'in-mbu':'32', 'in-mfu':'30', 'in-util':'65',
+    'in-capex-mult':'3.2', 'in-pue':'1.4', 'in-elec':'0.07', 'in-net':'12',
+  },
+};
+
+function applyPreset(name) {
+  const preset = PRESETS[name] || PRESETS.research;
+  Object.entries(preset).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  });
+  document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+  const active = document.getElementById('preset-' + name);
+  if (active) active.classList.add('active');
+  calc();
+}
+
 function resetAll() {
   document.querySelectorAll('.autofill').forEach(el => el.classList.remove('autofill'));
   // 重置到 NVIDIA benchmark 默认值：DeepSeek-R1 / H100 SXM / FP8 / Jan 2025
@@ -1935,10 +2021,10 @@ function resetAll() {
   document.getElementById('sel-gpu').value = 'H200 SXM';
   onGpuChange();
   const defaults = {
-    'in-salvage':'0','in-depr':'5','in-capex-mult':'2.8','in-pue':'1.3','in-elec':'0.06','in-net':'10','in-util':'85',
-    'in-isl':'1024','in-osl':'2048','in-batch':'25','in-comm':'0.05','in-mbu':'65','in-mfu':'35',
+    'in-salvage':'0','in-depr':'5',
   };
   Object.entries(defaults).forEach(([id,val]) => { const el=document.getElementById(id); if(el) el.value=val; });
+  applyPreset('research');
   document.getElementById('in-prec').value = '1';   // FP8
   updateTflops();
   setHwMode('selfbuild');
@@ -2159,11 +2245,16 @@ function calcRevenue() {
   const revenue   = revenueM * 1e6;
   const tgtMargin = tgtMarginP / 100;
 
-  if (!priceOut || !revenue || _cs.tpsPerNode <= 0 || _cs.tcoPerNode <= 0) {
+  const invalidCapacity =
+    !isFinite(_cs.tpsPerNode) || _cs.tpsPerNode <= 0 ||
+    !isFinite(_cs.tcoPerNode) || _cs.tcoPerNode <= 0 ||
+    !isFinite(_cs.annSeconds) || _cs.annSeconds <= 0;
+
+  if (!priceOut || !revenue || invalidCapacity) {
     ['rv-gpus','rv-nodes-txt','rv-margin-val','rv-profit-val',
      'rv-ann-out','rv-tps-need','rv-tps-node','rv-nodes-need','rv-tco-need',
-     'rv-capacity','rv-breakeven','rv-tco-per-node'].forEach(id => setR(id,'—'));
-    setR('rv-vs-current', '请先在左侧完成参数配置');
+     'rv-capacity','rv-breakeven','rv-tco-per-node','rv-effective-in','rv-blended-perm'].forEach(id => setR(id,'—'));
+    setR('rv-vs-current', _cs.annSeconds <= 0 ? '有效运行时间为 0，无法计算收入反推' : '请先在左侧完成有效参数配置');
     return;
   }
 
@@ -2389,13 +2480,9 @@ onModelChange();
 // 2. GPU：H200 SXM
 document.getElementById('sel-gpu').value = 'H200 SXM';
 onGpuChange();
-// 3. 覆盖精度 / ISL / OSL / Batch / MBU / MFU → NVIDIA Mar 2025 H200 benchmark 参数
+// 3. 默认采用投研基准预设；Benchmark / SLA 可在页面上切换
 document.getElementById('in-prec').value  = '1';    // FP8
-document.getElementById('in-isl').value   = '1024'; // ISL = 1K
-document.getElementById('in-osl').value   = '2048'; // OSL = 2K（Mar 2025）
-document.getElementById('in-batch').value = '25';   // 反推有效 batch ≈ 23–27
-document.getElementById('in-mbu').value   = '65';   // 反推 MBU ≈ 65%（decode，已修正GQA/批次缩放）
-document.getElementById('in-mfu').value   = '35';   // MFU 典型值（prefill）
+applyPreset('research');                            // default research baseline
 updateTflops();                                      // 同步 TFLOPS = H200 FP8 = 1979
 onKvModeChange();
 onArchChange();
