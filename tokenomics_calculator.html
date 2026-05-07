@@ -2026,13 +2026,13 @@ function onGpuChange() {
     const el = document.getElementById(id);
     if (!el) return;
     el.value = val !== null && val !== undefined ? val : '';
-    el.classList.add('autofill');
+    el.classList.toggle('autofill', val !== null && val !== undefined);
   };
   af('in-tdp', g.tdp);
   af('in-bw', g.bw);
   af('in-vram', g.vram);
-  if (g.price8 !== null) af('in-price8', g.price8);
-  if (g.cloudPrice !== null) af('in-rent-price', g.cloudPrice);
+  af('in-price8', g.price8);
+  af('in-rent-price', g.cloudPrice);
   updateTflops();
   calc();
 }
