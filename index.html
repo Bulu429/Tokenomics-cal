@@ -947,6 +947,108 @@
     .rev-dl.bold { font-weight: 700; color: var(--text); }
     .rev-dv { font-family: var(--mono); font-weight: 500; color: var(--text); }
     .rev-du { font-size: 9px; color: var(--text-3); font-family: var(--mono); margin-left: 2px; }
+
+    /* ================================================================
+       MOBILE  (≤ 768px)
+    ================================================================ */
+    .m-tab-bar { display: none; }
+
+    @media (max-width: 768px) {
+
+      /* ── body padding for bottom bar */
+      body { padding-bottom: 60px; }
+
+      /* ── masthead compact */
+      .masthead { padding: 0 12px; height: 46px; }
+      .masthead-title { font-size: 13px; }
+      .masthead-sub { display: none; }
+
+      /* ── top selectors stack */
+      .sel-row { flex-wrap: wrap; gap: 6px; padding: 8px 12px; }
+      .sel-group { flex: 1 1 calc(50% - 6px); min-width: 0; }
+      .sel-group select { font-size: 12px; }
+
+      /* ── presets: 1 column */
+      .preset-bar { grid-template-columns: 1fr 1fr; gap: 6px; margin: 0 0 10px; }
+      .preset-btn { min-height: 52px; padding: 8px 10px; }
+      .preset-meta { display: none; }
+
+      /* ── legend hide */
+      .legend { display: none; }
+
+      /* ── split layout: vertical, full width */
+      .tab-split { flex-direction: column; gap: 0; }
+      .split-left { width: 100%; }
+      .split-right {
+        position: static;
+        max-height: none;
+        width: 100%;
+        flex: 1 1 auto;
+      }
+
+      /* ── flowchart: horizontal scroll */
+      .flow-section { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 10px; }
+      .flow-bar { min-width: 680px; padding: 12px 10px; gap: 8px; }
+
+      /* ── calc-grid: always 1 col */
+      .calc-grid { grid-template-columns: 1fr; gap: 0; border-radius: 0; }
+      .calc-grid .card:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+
+      /* ── results grid: 2 col */
+      .results-grid { grid-template-columns: repeat(2, 1fr); }
+
+      /* ── inputs touch-friendly */
+      .p-input, .p-select { height: 36px; font-size: 14px; }
+      .p-row { padding: 7px 14px; gap: 6px; }
+      .p-label { font-size: 11px; min-width: 100px; }
+      .p-note { display: none; }   /* hide hints on mobile to save space */
+
+      /* ── card heading */
+      .card-hd { padding: 10px 14px; font-size: 11.5px; }
+      .card-bd { padding: 0; }
+
+      /* ── rev panel */
+      .rev-row { padding: 8px 14px; }
+      .rev-label { font-size: 12px; }
+      .rev-inputs .p-input { height: 36px; font-size: 14px; }
+
+      /* ── mobile section hide/show (JS toggles .m-hidden) */
+      .m-hidden { display: none !important; }
+
+      /* ── bottom tab bar */
+      .m-tab-bar {
+        display: flex;
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        height: 54px;
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        z-index: 200;
+        box-shadow: 0 -2px 12px rgba(0,0,0,.06);
+      }
+      .m-tab {
+        flex: 1;
+        border: none;
+        background: none;
+        font-family: var(--sans);
+        font-size: 12px;
+        color: var(--text-3);
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        transition: color .15s, background .15s;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .m-tab.active {
+        color: var(--accent);
+        background: var(--accent-2);
+        font-weight: 600;
+      }
+      .m-tab:active { background: var(--bg); }
+    }
   </style>
 </head>
 <body>
@@ -1122,12 +1224,19 @@
     </button>
   </div>
 
+  <!-- Mobile bottom tab nav -->
+  <nav class="m-tab-bar" id="m-tab-bar">
+    <button class="m-tab active" onclick="mTab('params')">⚙️ 参数</button>
+    <button class="m-tab" onclick="mTab('cost')">💰 成本</button>
+    <button class="m-tab" onclick="mTab('rev')">📈 反推</button>
+  </nav>
+
   <div class="tab-split">
   <!-- ========== LEFT: EXISTING CALCULATOR ========== -->
   <div class="split-left">
 
   <!-- ================================================ FORMULA FLOWCHART -->
-  <div class="flow-section anim-flow">
+  <div class="flow-section anim-flow" id="m-section-cost">
     <div class="flow-bar">
       <!-- TCO -->
       <div class="flow-step">
@@ -1188,7 +1297,7 @@
   </div>
 
   <!-- ================================================ CALC GRID -->
-  <div class="calc-grid anim-grid">
+  <div class="calc-grid anim-grid" id="m-section-params">
 
     <!-- LEFT: Hardware -->
     <div class="card">
@@ -1399,7 +1508,7 @@
   </div><!-- /calc-grid -->
 
   <!-- ================================================ RESULTS ENGINE -->
-  <div class="results-card anim-grid">
+  <div class="results-card anim-grid" id="m-section-cost-results">
     <div class="card-hd">三、计算引擎（四层嵌套·自动推导）</div>
     <div class="results-grid">
 
@@ -1455,7 +1564,7 @@
   </div><!-- /split-left -->
 
   <!-- ========== RIGHT: REVENUE → GPU PANEL ========== -->
-  <div class="split-right">
+  <div class="split-right" id="m-section-rev">
     <div class="rev-card">
       <div class="rev-hd">
         <span>收入 → 算力反推</span>
@@ -2488,6 +2597,54 @@ updateTflops();                                      // 同步 TFLOPS = H200 FP8
 onKvModeChange();
 onArchChange();
 calc();
+
+// ── Mobile tab switching ─────────────────────────────────────────────────────
+function mTab(name) {
+  if (window.innerWidth > 768) return;
+  const sections = {
+    params: ['m-section-params'],
+    cost:   ['m-section-cost', 'm-section-cost-results'],
+    rev:    ['m-section-rev'],
+  };
+  const all = ['m-section-params','m-section-cost','m-section-cost-results','m-section-rev'];
+  // hide all managed sections
+  all.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('m-hidden');
+  });
+  // show selected group
+  (sections[name] || []).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('m-hidden');
+  });
+  // update tab active state
+  document.querySelectorAll('.m-tab').forEach(btn => btn.classList.remove('active'));
+  const tabs = ['params','cost','rev'];
+  const idx = tabs.indexOf(name);
+  const tabBtns = document.querySelectorAll('.m-tab');
+  if (tabBtns[idx]) tabBtns[idx].classList.add('active');
+}
+
+// init mobile tabs on load
+(function initMobileTabs() {
+  if (window.innerWidth <= 768) {
+    // default: show cost (flowchart is the key result)
+    mTab('cost');
+  }
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) {
+      // restore all sections on desktop
+      ['m-section-params','m-section-cost','m-section-cost-results','m-section-rev'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('m-hidden');
+      });
+    } else {
+      // re-apply current active tab on resize to mobile
+      const active = document.querySelector('.m-tab.active');
+      if (!active) mTab('cost');
+    }
+  });
+})();
 </script>
 </body>
 </html>
